@@ -141,6 +141,9 @@ public class BeaconOverviewAdapter extends BaseExpandableListAdapter {
         TextView uuidView = (TextView) rowView.findViewById(R.id.beacon_uuid);
         uuidView.setText(beacon.getUuid());
 
+        TextView macView = (TextView) rowView.findViewById(R.id.beacon_mac);
+        macView.setText(beacon.getMac());
+
         TextView detailsView = (TextView) rowView.findViewById(R.id.beacon_details);
         String details = context.getString(R.string.beacon_details, beacon.getMajor(), beacon.getMinor());
         detailsView.setText(details);

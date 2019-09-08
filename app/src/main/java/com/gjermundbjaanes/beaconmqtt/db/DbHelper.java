@@ -10,17 +10,19 @@ import com.gjermundbjaanes.beaconmqtt.db.log.LogContract;
 public class DbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "Beacon.db";
 
     private static final String SQL_CREATE_BEACON_TABLE =
             "CREATE TABLE " + BeaconContract.BeaconEntry.TABLE_NAME + " (" +
                     BeaconContract.BeaconEntry.COLUMN_NAME_UUID + " TEXT," +
+                    BeaconContract.BeaconEntry.COLUMN_NAME_MAC + " TEXT," +
                     BeaconContract.BeaconEntry.COLUMN_NAME_MINOR + " TEXT," +
                     BeaconContract.BeaconEntry.COLUMN_NAME_MAJOR + " TEXT," +
                     BeaconContract.BeaconEntry.COLUMN_NAME_INFORMAL_NAME + " TEXT," +
                     "PRIMARY KEY (" +
                     BeaconContract.BeaconEntry.COLUMN_NAME_UUID + ", " +
+                    BeaconContract.BeaconEntry.COLUMN_NAME_MAC + ", " +
                     BeaconContract.BeaconEntry.COLUMN_NAME_MINOR + ", " +
                     BeaconContract.BeaconEntry.COLUMN_NAME_MAJOR + ")" +
                     ");";

@@ -23,6 +23,10 @@ public class BeaconListElement {
         return beacon.getId1().toString();
     }
 
+    String getMac() {
+        return beacon.getBluetoothAddress();
+    }
+
     String getMajor() {
         return beacon.getId2().toString();
     }

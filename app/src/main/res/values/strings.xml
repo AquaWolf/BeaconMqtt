@@ -19,8 +19,8 @@
     <!-- Strings related to general beacon search -->
     <string name="beacon_spotted_notification_title">Beacon spotted!</string>
     <string name="beacon_exit_notification_title">Beacon lost!</string>
-    <string name="beacon_spotted_notification_message">Entered region uuid: %1$s, major: %2$s, minor: %3$s</string>
-    <string name="beacon_exit_notification_message">Exited region uuid: %1$s, major: %2$s, minor: %3$s</string>
+    <string name="beacon_spotted_notification_message">Entered region uuid: %1$s, mac %2$s, major: %3$s, minor: %4$s</string>
+    <string name="beacon_exit_notification_message">Exited region uuid: %1$s, mac %2$s, major: %3$s, minor: %4$s</string>
     <string name="not_able_to_start_monitoring_for_beacon_error_1">Not able to start monitoring for beacon with</string>
 
     <!-- String related to MqttBroadcaster -->
@@ -55,6 +55,7 @@
     <string name="dialog_save_beacon">Save Beacon</string>
     <string name="dialog_cancel_beacon">Cancel</string>
     <string name="dialog_new_beacon_uuid">Beacon UUID</string>
+    <string name="dialog_new_beacon_mac">Beacon Mac</string>
     <string name="dialog_new_beacon_major">Beacon Major</string>
     <string name="dialog_new_beacon_minor">Beacon Minor</string>
     <string name="new_beacon_details_already_saved">Already saved…</string>

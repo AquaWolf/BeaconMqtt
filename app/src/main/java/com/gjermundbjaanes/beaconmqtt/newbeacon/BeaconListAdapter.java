@@ -53,6 +53,9 @@ public class BeaconListAdapter extends BaseAdapter {
         TextView uuidView = (TextView) rowView.findViewById(R.id.beacon_uuid);
         uuidView.setText(beacon.getUuid());
 
+        TextView macView = (TextView) rowView.findViewById(R.id.beacon_mac);
+        macView.setText(beacon.getMac());
+
         TextView detailsView = (TextView) rowView.findViewById(R.id.beacon_details);
         String details = context.getString(R.string.beacon_details, beacon.getMajor(), beacon.getMinor());
         if (beacon.isSaved()) {

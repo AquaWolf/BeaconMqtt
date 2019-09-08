@@ -26,6 +26,17 @@
         android:hint="@string/dialog_new_beacon_uuid" />
 
     <EditText
+        android:id="@+id/manual_dailog_new_beacon_mac"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp"
+        android:hint="@string/dialog_new_beacon_mac" />
+
+    <EditText
         android:id="@+id/manual_dailog_new_beacon_major"
         android:inputType="text"
         android:layout_width="match_parent"

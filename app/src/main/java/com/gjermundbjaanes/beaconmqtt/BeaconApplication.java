@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,11 +22,15 @@ import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.Region;
+import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_KEY;
@@ -36,7 +41,7 @@ import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_BETWEEN_SCAN
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_SCAN_PERIOD;
 
 public class BeaconApplication extends Application implements BootstrapNotifier {
-
+    private BackgroundPowerSaver backgroundPowerSaver;
     private static final String TAG = BeaconApplication.class.getName();
 
     private RegionBootstrap regionBootstrap; // Needs to be here even if not used (altbeacon requirement)
@@ -56,6 +61,10 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         } // TODO: Should I set the context again?
 
         final BeaconManager beaconManager = setUpBeaconManager();
+
+        beaconManager.setDebug(true);
+
+        backgroundPowerSaver = new BackgroundPowerSaver(this);
 
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         setUpSettingsChangedListener(beaconManager, defaultSharedPreferences);
@@ -111,12 +120,16 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
         List<Region> regions = new ArrayList<>(beacons.size());
         for (BeaconResult beacon : beacons) {
-            String id = beacon.getUuid() + beacon.getMajor() + beacon.getMinor();
+            String id = beacon.getUuid() + beacon.getMac() + beacon.getMajor() + beacon.getMinor();
             try {
+                ArrayList<Identifier> identifiers = new ArrayList(3);
+                identifiers.add(Identifier.parse(beacon.getUuid()));
+                identifiers.add(Identifier.parse(beacon.getMajor()));
+                identifiers.add(Identifier.parse(beacon.getMinor()));
+                
                 Region region = new Region(id,
-                        Identifier.parse(beacon.getUuid()),
-                        Identifier.parse(beacon.getMajor()),
-                        Identifier.parse(beacon.getMinor()));
+                        identifiers,
+                        beacon.getMac());
                 regions.add(region);
             } catch (IllegalArgumentException e) {
                 String informalName = beacon.getInformalName();
@@ -125,7 +138,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
                 if (informalName != null && !informalName.isEmpty()) {
                     stringBuilder.append("name: \"").append(informalName).append("\" with ");
                 }
-                stringBuilder.append("uuid: \"").append(beacon.getUuid()).append("\" major: \"").append(beacon.getMajor()).append("\" minor: \"").append(beacon.getMinor()).append("\"");
+                stringBuilder.append("uuid: \"").append(beacon.getUuid()).append("mac: \"").append(beacon.getMac()).append("\" major: \"").append(beacon.getMajor()).append("\" minor: \"").append(beacon.getMinor()).append("\"");
 
                 String errorMessage = stringBuilder.toString();
                 Log.e(TAG, errorMessage, e);
@@ -139,21 +152,22 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
     @Override
     public void didEnterRegion(Region region) {
+        String mac = region.getBluetoothAddress();
         String uuid = region.getId1().toString();
         String major = region.getId2().toString();
         String minor = region.getId3().toString();
 
-        Log.i(TAG, getString(R.string.beacon_spotted_notification_message, uuid, major, minor));
-        mqttBroadcaster.publishEnterMessage(uuid, major, minor);
+        Log.i(TAG, getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor));
+        mqttBroadcaster.publishEnterMessage(uuid, mac, major, minor);
 
-        BeaconResult beacon = beaconPersistence.getBeacon(uuid, major, minor);
+        BeaconResult beacon = beaconPersistence.getBeacon(uuid, mac, major, minor);
         if (beacon != null) {
             beaconsInRange.add(beacon);
             if (beaconInRangeListener != null) {
                 beaconInRangeListener.beaconsInRangeChanged(beaconsInRange);
             }
 
-            String message = getString(R.string.beacon_spotted_notification_message, uuid, major, minor);
+            String message = getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor);
 
             boolean showNotification = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_NOTIFICATIONS_ENTER_KEY, false);
             if (showNotification) {
@@ -174,21 +188,22 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
     @Override
     public void didExitRegion(Region region) {
+        String mac = region.getBluetoothAddress();
         String uuid = region.getId1().toString();
         String major = region.getId2().toString();
         String minor = region.getId3().toString();
 
-        Log.i(TAG, getString(R.string.beacon_exit_notification_message, uuid, region.getId2(), region.getId3()));
-        mqttBroadcaster.publishExitMessage(uuid, major, minor);
+        Log.i(TAG, getString(R.string.beacon_exit_notification_message, uuid, mac, region.getId2(), region.getId3()));
+        mqttBroadcaster.publishExitMessage(uuid, mac, major, minor);
 
-        BeaconResult beacon = beaconPersistence.getBeacon(uuid, major, minor);
+        BeaconResult beacon = beaconPersistence.getBeacon(uuid, mac, major, minor);
         if (beacon != null) {
             beaconsInRange.remove(beacon);
             if (beaconInRangeListener != null) {
                 beaconInRangeListener.beaconsInRangeChanged(beaconsInRange);
             }
 
-            String message = getString(R.string.beacon_exit_notification_message, uuid, major, minor);
+            String message = getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor);
 
             boolean showNotification = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_NOTIFICATIONS_EXIT_KEY, false);
             if (showNotification) {

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_INFORMAL_NAME;
+import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAC;
 import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAJOR;
 import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MINOR;
 import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_UUID;
@@ -20,7 +21,7 @@ import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntr
 
 public class BeaconPersistence {
 
-    private static final String PRIMARY_KEY_SELECTION = COLUMN_NAME_UUID + "=? AND " + COLUMN_NAME_MAJOR + "=? AND " + COLUMN_NAME_MINOR + "=?";
+    private static final String PRIMARY_KEY_SELECTION = COLUMN_NAME_UUID + "=? AND " + COLUMN_NAME_MAC + "=? AND " + COLUMN_NAME_MAJOR + "=? AND " + COLUMN_NAME_MINOR + "=?";
     private final DbHelper dbHelper;
 
     public BeaconPersistence(Context context) {
@@ -33,6 +34,7 @@ public class BeaconPersistence {
         try {
             String[] columns = {
                     COLUMN_NAME_UUID,
+                    COLUMN_NAME_MAC,
                     COLUMN_NAME_MAJOR,
                     COLUMN_NAME_MINOR,
                     COLUMN_NAME_INFORMAL_NAME,
@@ -43,10 +45,11 @@ public class BeaconPersistence {
             List<BeaconResult> beacons = new ArrayList<>();
             while(cursor.moveToNext()) {
                 String uuid = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_UUID));
+                String mac = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_MAC));
                 String major = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_MAJOR));
                 String minor = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_MINOR));
                 String informalName = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_INFORMAL_NAME));
-                beacons.add(new BeaconResult(uuid, major, minor, informalName));
+                beacons.add(new BeaconResult(uuid, mac, major, minor, informalName));
             }
             cursor.close();
 
@@ -60,16 +63,17 @@ public class BeaconPersistence {
     }
 
     public void saveBeacon(Beacon beacon, String informalBeaconName) {
-        saveBeacon(beacon.getId1().toString(), beacon.getId2().toString(), beacon.getId3().toString(), informalBeaconName);
+        saveBeacon(beacon.getId1().toString(), beacon.getBluetoothAddress() , beacon.getId2().toString(), beacon.getId3().toString(), informalBeaconName);
     }
 
-    public void saveBeacon(String uuid, String major, String minor, String informalBeaconName) {
+    public void saveBeacon(String uuid, String mac, String major, String minor, String informalBeaconName) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         try {
             ContentValues values = new ContentValues();
 
             values.put(COLUMN_NAME_UUID, uuid);
+            values.put(COLUMN_NAME_MAC, mac);
             values.put(COLUMN_NAME_MAJOR, major);
             values.put(COLUMN_NAME_MINOR, minor);
             values.put(COLUMN_NAME_INFORMAL_NAME, informalBeaconName);
@@ -82,25 +86,26 @@ public class BeaconPersistence {
         }
     }
 
-    public BeaconResult getBeacon(String uuid, String major, String minor) {
+    public BeaconResult getBeacon(String uuid, String mac, String major, String minor) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         try {
             String[] columns = {
                     COLUMN_NAME_UUID,
+                    COLUMN_NAME_MAC,
                     COLUMN_NAME_MAJOR,
                     COLUMN_NAME_MINOR,
                     COLUMN_NAME_INFORMAL_NAME,
             };
 
-            Cursor cursor = db.query(TABLE_NAME, columns, PRIMARY_KEY_SELECTION, new String[] {uuid, major, minor}, null, null, null);
+            Cursor cursor = db.query(TABLE_NAME, columns, PRIMARY_KEY_SELECTION, new String[] {uuid, mac, major, minor}, null, null, null);
 
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 String informalName = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_INFORMAL_NAME));
                 cursor.close();
 
-                return new BeaconResult(uuid, major, minor, informalName);
+                return new BeaconResult(uuid, mac, major, minor, informalName);
             }
 
         } finally {
@@ -116,7 +121,7 @@ public class BeaconPersistence {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         try {
-            int numberOfRowsAffected = db.delete(TABLE_NAME, PRIMARY_KEY_SELECTION, new String[] {beaconResult.getUuid(), beaconResult.getMajor(), beaconResult.getMinor()});
+            int numberOfRowsAffected = db.delete(TABLE_NAME, PRIMARY_KEY_SELECTION, new String[] {beaconResult.getUuid(), beaconResult.getMac(), beaconResult.getMajor(), beaconResult.getMinor()});
             return numberOfRowsAffected != 0;
         } finally {
             if (db != null) {

@@ -59,14 +59,14 @@ public class MqttBroadcaster {
         connectToMqttServer(mqttServer, mqttPort, mqttUser, mqttPassword);
     }
 
-    public void publishEnterMessage(String uuid, String major, String minor) {
+    public void publishEnterMessage(String uuid, String mac, String major, String minor) {
         String preferenceEnterTopic = defaultSharedPreferences.getString(MQTT_ENTER_TOPIC_KEY, DEFAULT_ENTER_TOPIC);
-        publishMessage(uuid, major, minor, preferenceEnterTopic);
+        publishMessage(uuid, mac, major, minor, preferenceEnterTopic);
     }
 
-    public void publishExitMessage(String uuid, String major, String minor) {
+    public void publishExitMessage(String uuid, String mac, String major, String minor) {
         String preferenceEnterTopic = defaultSharedPreferences.getString(MQTT_EXIT_TOPIC_KEY, DEFAULT_EXIT_TOPIC);
-        publishMessage(uuid, major, minor, preferenceEnterTopic);
+        publishMessage(uuid, mac, major, minor, preferenceEnterTopic);
     }
 
     private void registerSettingsChangeListener() {
@@ -142,11 +142,12 @@ public class MqttBroadcaster {
 
     }
 
-    private void publishMessage(String uuid, String major, String minor, String topic) {
+    private void publishMessage(String uuid, String mac, String major, String minor, String topic) {
         if (mqttAndroidClient != null) {
             try {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("uuid", uuid);
+                jsonObject.put("mac", mac);
                 jsonObject.put("major", major);
                 jsonObject.put("minor", minor);
                 MqttMessage mqttMessage = new MqttMessage();

@@ -131,6 +131,7 @@ public class NewBeaconActivity extends AppCompatActivity implements BeaconConsum
             private boolean beaconIsSaved(Beacon beacon) {
                 for (BeaconResult beaconResult : persistedBeaconList) {
                     if (beacon.getId1().toString().equals(beaconResult.getUuid()) &&
+                            beacon.getBluetoothAddress().toString().equals(beaconResult.getMac()) &&
                             beacon.getId2().toString().equals(beaconResult.getMajor()) &&
                             beacon.getId3().toString().equals(beaconResult.getMinor())) {
                         return true;
@@ -229,13 +230,16 @@ public class NewBeaconActivity extends AppCompatActivity implements BeaconConsum
             TextView newBeaconUuidTextView = (TextView) dialogLayout.findViewById(R.id.manual_dailog_new_beacon_uuid);
             String beaconUuid = newBeaconUuidTextView.getText().toString();
 
+            TextView newBeaconMacTextView = (TextView) dialogLayout.findViewById(R.id.manual_dailog_new_beacon_mac);
+            String beaconMac = newBeaconMacTextView.getText().toString();
+
             TextView newBeaconMajorTextView = (TextView) dialogLayout.findViewById(R.id.manual_dailog_new_beacon_major);
             String beaconMajor = newBeaconMajorTextView.getText().toString();
 
             TextView newBeaconMinorTextView = (TextView) dialogLayout.findViewById(R.id.manual_dailog_new_beacon_minor);
             String beaconMinor = newBeaconMinorTextView.getText().toString();
 
-            beaconPersistence.saveBeacon(beaconUuid, beaconMajor, beaconMinor, informalBeaconName);
+            beaconPersistence.saveBeacon(beaconUuid, beaconMac, beaconMajor, beaconMinor, informalBeaconName);
             persistedBeaconList = beaconPersistence.getBeacons();
             ((BeaconApplication) getApplication()).restartBeaconSearch();
         }
