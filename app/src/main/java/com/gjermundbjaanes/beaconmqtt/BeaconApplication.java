@@ -2,6 +2,7 @@ package com.gjermundbjaanes.beaconmqtt;
 
 import android.app.Application;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,10 +27,7 @@ import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_KEY;
@@ -39,6 +36,8 @@ import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_SC
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_SCAN_PERIOD;
+
+
 
 public class BeaconApplication extends Application implements BootstrapNotifier {
     private BackgroundPowerSaver backgroundPowerSaver;
@@ -52,6 +51,10 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     private List<BeaconResult> beaconsInRange = new ArrayList<>();
     private BeaconInRangeListener beaconInRangeListener = null;
 
+    private String NOTIFICATION_CHANNEL_ID = "beacon_mqtt_channel_id_01";
+    private NotificationChannel notificationChannel;
+    private NotificationManager notificationManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -62,7 +65,14 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
         final BeaconManager beaconManager = setUpBeaconManager();
 
-        beaconManager.setDebug(true);
+
+        notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setDescription(getString(R.string.notification_channel_description));
+        notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+        notificationChannel.enableVibration(true);
+        notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(notificationChannel);
 
         backgroundPowerSaver = new BackgroundPowerSaver(this);
 
@@ -229,21 +239,27 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     }
 
     private void showNotification(String title, String message) {
-        Intent notifyIntent = new Intent(this, MainActivity.class);
+            Intent notifyIntent = new Intent(this, MainActivity.class);
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivities(this, 0,
                 new Intent[] { notifyIntent }, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification.Builder(this)
+        Notification notification = new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .build();
-        notification.defaults |= Notification.DEFAULT_SOUND;
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        
         notificationManager.notify(1, notification);
+
+        /**Creates an explicit intent for an Activity in your app**/
+        Intent resultIntent = new Intent(this , MainActivity.class);
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this,
+                0 /* Request code */, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void setBeaconInRangeListener(BeaconInRangeListener beaconInRangeListener) {

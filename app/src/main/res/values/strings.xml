@@ -70,5 +70,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="logging_turned_off_message">Logging is turned off, go to settings to turn it on.</string>
+    <string name="notification_channel_name">beaconMqtt Notifications</string>
+    <string name="notification_channel_description">Notifications raised when entering/leaving a beacon</string>
 
 </resources>
