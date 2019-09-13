@@ -51,17 +51,17 @@ public class BeaconListAdapter extends BaseAdapter {
         BeaconListElement beacon = beacons.get(position);
 
         TextView uuidView = (TextView) rowView.findViewById(R.id.beacon_uuid);
-        uuidView.setText(beacon.getUuid());
+        String uuid = beacon.getUuid();
+        if (beacon.isSaved()) {
+            uuid = context.getString(R.string.new_beacon_details_already_saved) + " " + uuid;
+        }
+        uuidView.setText(uuid);
 
         TextView macView = (TextView) rowView.findViewById(R.id.beacon_mac);
         macView.setText(beacon.getMac());
 
         TextView detailsView = (TextView) rowView.findViewById(R.id.beacon_details);
-        String details = context.getString(R.string.beacon_details, beacon.getMajor(), beacon.getMinor());
-        if (beacon.isSaved()) {
-            details = context.getString(R.string.new_beacon_details_already_saved) + details;
-        }
-        detailsView.setText(details);
+        detailsView.setText(context.getString(R.string.beacon_details, beacon.getMajor(), beacon.getMinor()));
 
         return rowView;
     }

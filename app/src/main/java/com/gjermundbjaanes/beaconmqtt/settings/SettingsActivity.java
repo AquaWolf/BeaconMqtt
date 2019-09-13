@@ -43,9 +43,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String MQTT_ENTER_TOPIC_KEY = "mqtt_enter_topic";
     public static final String MQTT_EXIT_TOPIC_KEY = "mqtt_exit_topic";
+    public static final String MQTT_ENTER_DISTANCE_TOPIC_KEY = "mqtt_enter_distance_topic";
+    public static final String MQTT_EXIT_DISTANCE_TOPIC_KEY = "mqtt_exit_distance_topic";
 
+    public static final String BEACON_MONITOR_DISTANCE_KEY = "beacon_monitor_distance";
+    public static final String BEACON_MINIMUM_DISTANCE_KEY = "beacon_minimum_distance";
     public static final String BEACON_NOTIFICATIONS_ENTER_KEY = "beacon_notifications_enter";
     public static final String BEACON_NOTIFICATIONS_EXIT_KEY = "beacon_notifications_exit";
+    public static final String BEACON_NOTIFICATIONS_ENTER_DISTANCE_KEY = "beacon_notifications_enter_distance";
+    public static final String BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY = "beacon_notifications_exit_distance";
     public static final String BEACON_PERIOD_BETWEEN_SCANS_KEY = "beacon_period_between_scans";
     public static final String BEACON_SCAN_PERIOD_KEY = "beacon_scan_period";
 
@@ -187,6 +193,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(MQTT_PASS_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_ENTER_TOPIC_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_EXIT_TOPIC_KEY));
+            bindPreferenceSummaryToValue(findPreference(MQTT_ENTER_DISTANCE_TOPIC_KEY));
+            bindPreferenceSummaryToValue(findPreference(MQTT_EXIT_DISTANCE_TOPIC_KEY));
         }
 
         @Override
@@ -218,6 +226,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference(BEACON_PERIOD_BETWEEN_SCANS_KEY));
             bindPreferenceSummaryToValue(findPreference(BEACON_SCAN_PERIOD_KEY));
+            bindPreferenceSummaryToValue(findPreference(BEACON_MINIMUM_DISTANCE_KEY));
         }
 
         @Override

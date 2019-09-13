@@ -49,4 +49,22 @@
         android:singleLine="true"
         android:title="@string/pref_title_mqtt_exit_topic" />
 
+    <EditTextPreference
+        android:inputType="text"
+        android:key="mqtt_enter_distance_topic"
+        android:defaultValue="beacon/enter/distance"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_mqtt_enter_distance_topic" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="mqtt_exit_distance_topic"
+        android:defaultValue="beacon/exit/distance"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_mqtt_exit_distance_topic" />
+
 </PreferenceScreen>

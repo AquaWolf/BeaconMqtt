@@ -9,6 +9,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconPersistence;
 import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconResult;
 
 import java.util.ArrayList;
@@ -28,19 +29,26 @@ public class BeaconOverviewAdapter extends BaseExpandableListAdapter {
     private List<BeaconResult> beaconsInRange = new ArrayList<>();
     private OnDeleteClickListener onDeleteClickListener = null;
 
-    public BeaconOverviewAdapter(Context context, List<BeaconResult> savedBeacons) {
+    public BeaconOverviewAdapter(Context context) {
         this.context = context;
-        this.savedBeacons = savedBeacons;
+        this.savedBeacons = new BeaconPersistence(context).getBeacons();
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void updateSavedBeacons(List<BeaconResult> savedBeacons) {
-        this.savedBeacons = savedBeacons;
+    public void updateSavedBeacons() {
+        this.savedBeacons = new BeaconPersistence(this.context).getBeacons();
         this.notifyDataSetChanged();
     }
 
-    public void updateBeaconsInRange(List<BeaconResult> beaconsInRange) {
-        this.beaconsInRange = beaconsInRange;
+    public void updateBeaconsInRange() {
+        BeaconPersistence beaconPersistence = new BeaconPersistence(this.context);
+        this.beaconsInRange.clear();
+        for (BeaconResult beacon: this.savedBeacons) {
+            if(beaconPersistence.isBeaconInRange(beacon)) {
+                this.beaconsInRange.add(beacon);
+            }
+        }
+
         this.notifyDataSetChanged();
     }
 

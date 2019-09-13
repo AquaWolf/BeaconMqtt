@@ -23,7 +23,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_DISTANCE_TOPIC_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_TOPIC_KEY;
+import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_DISTANCE_TOPIC_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_TOPIC_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_PORT_KEY;
 import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_SERVER_KEY;
@@ -37,6 +39,8 @@ public class MqttBroadcaster {
     private static final String CLIENT_ID = "AndroidMqttBeacon";
     private static final String DEFAULT_ENTER_TOPIC = "beacon/enter";
     private static final String DEFAULT_EXIT_TOPIC = "beacon/exit";
+    private static final String DEFAULT_ENTER_DISTANCE_TOPIC = "beacon/enter/distance";
+    private static final String DEFAULT_EXIT_DISTANCE_TOPIC = "beacon/exit/distance";
     private final Context context;
 
     private MqttAndroidClient mqttAndroidClient = null;
@@ -61,12 +65,22 @@ public class MqttBroadcaster {
 
     public void publishEnterMessage(String uuid, String mac, String major, String minor) {
         String preferenceEnterTopic = defaultSharedPreferences.getString(MQTT_ENTER_TOPIC_KEY, DEFAULT_ENTER_TOPIC);
-        publishMessage(uuid, mac, major, minor, preferenceEnterTopic);
+        publishMessage(getMessagePayload(uuid, mac, major, minor), preferenceEnterTopic);
     }
 
     public void publishExitMessage(String uuid, String mac, String major, String minor) {
-        String preferenceEnterTopic = defaultSharedPreferences.getString(MQTT_EXIT_TOPIC_KEY, DEFAULT_EXIT_TOPIC);
-        publishMessage(uuid, mac, major, minor, preferenceEnterTopic);
+        String preferenceExitTopic = defaultSharedPreferences.getString(MQTT_EXIT_TOPIC_KEY, DEFAULT_EXIT_TOPIC);
+        publishMessage(getMessagePayload(uuid, mac, major, minor), preferenceExitTopic);
+    }
+
+    public void publishEnterDistanceMessage(String uuid, String mac, String major, String minor, double distance) {
+        String preferenceDistanceTopic = defaultSharedPreferences.getString(MQTT_ENTER_DISTANCE_TOPIC_KEY, DEFAULT_ENTER_DISTANCE_TOPIC);
+        publishMessage(getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
+    }
+
+    public void publishExitDistanceMessage(String uuid, String mac, String major, String minor, double distance) {
+        String preferenceDistanceTopic = defaultSharedPreferences.getString(MQTT_EXIT_DISTANCE_TOPIC_KEY, DEFAULT_EXIT_DISTANCE_TOPIC);
+        publishMessage(getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
     }
 
     private void registerSettingsChangeListener() {
@@ -142,29 +156,45 @@ public class MqttBroadcaster {
 
     }
 
-    private void publishMessage(String uuid, String mac, String major, String minor, String topic) {
+    private JSONObject getMessagePayload(String uuid, String mac, String major, String minor, double distance) {
+        JSONObject jsonObject = getMessagePayload(uuid, mac, major, minor);
+        try {
+            jsonObject.put("distance", distance);
+        } catch (JSONException e) {
+            logPersistence.saveNewLog(context.getString(R.string.error_creating_distance_payload, uuid, mac, major, minor, distance), "");
+            Log.e(TAG, context.getString(R.string.error_creating_distance_payload, uuid, mac, major, minor, distance), e);
+        }
+        return jsonObject;
+    }
+
+    private JSONObject getMessagePayload(String uuid, String mac, String major, String minor) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uuid", uuid);
+            jsonObject.put("mac", mac);
+            jsonObject.put("major", major);
+            jsonObject.put("minor", minor);
+        } catch (JSONException e) {
+            logPersistence.saveNewLog(context.getString(R.string.error_creating_payload, uuid, mac, major, minor), "");
+            Log.e(TAG, context.getString(R.string.error_creating_payload, uuid, mac, major, minor), e);
+        }
+
+        return jsonObject;
+    }
+
+    private void publishMessage(JSONObject payload, String topic) {
         if (mqttAndroidClient != null) {
+            MqttMessage mqttMessage = new MqttMessage();
+            mqttMessage.setPayload(payload.toString().getBytes());
             try {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("uuid", uuid);
-                jsonObject.put("mac", mac);
-                jsonObject.put("major", major);
-                jsonObject.put("minor", minor);
-                MqttMessage mqttMessage = new MqttMessage();
-                mqttMessage.setPayload(jsonObject.toString().getBytes());
-                try {
-                    mqttAndroidClient.publish(topic, mqttMessage);
-                } catch (MqttException ex){
-                    ex.printStackTrace();
-                }
-                boolean logEvent = defaultSharedPreferences.getBoolean(GENEARL_LOG_KEY, false);
-                if (logEvent) {
-                    String logMessage = context.getString(R.string.published_mqtt_message_to_topic, mqttMessage, topic);
-                    logPersistence.saveNewLog(logMessage, "");
-                }
-            } catch (JSONException e) {
-                logPersistence.saveNewLog(context.getString(R.string.error_publishing_on_topic, topic), "");
-                Log.e(TAG, context.getString(R.string.error_publishing_on_topic, topic), e);
+                mqttAndroidClient.publish(topic, mqttMessage);
+            } catch (MqttException ex){
+                ex.printStackTrace();
+            }
+            boolean logEvent = defaultSharedPreferences.getBoolean(GENEARL_LOG_KEY, false);
+            if (logEvent) {
+                String logMessage = context.getString(R.string.published_mqtt_message_to_topic, mqttMessage, topic);
+                logPersistence.saveNewLog(logMessage, "");
             }
         } else {
             Log.i(TAG, context.getString(R.string.publish_failed_not_set_up));

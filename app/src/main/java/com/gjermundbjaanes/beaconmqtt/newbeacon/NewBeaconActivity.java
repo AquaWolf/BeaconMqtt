@@ -205,6 +205,7 @@ public class NewBeaconActivity extends AppCompatActivity implements BeaconConsum
                                 String informalBeaconName = newBeaconNameTextView.getText().toString();
 
                                 beaconPersistence.saveBeacon(beaconListElement.getBeacon(), informalBeaconName);
+                                beaconPersistence.saveBeaconInRange(beaconListElement.getBeacon());
                                 persistedBeaconList = beaconPersistence.getBeacons();
                                 ((BeaconApplication) getApplication()).restartBeaconSearch();
                             }

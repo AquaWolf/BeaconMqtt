@@ -10,6 +10,30 @@
         android:key="beacon_notifications_exit"
         android:title="@string/pref_title_beacon_notifications_exit" />
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="beacon_notifications_enter_distance"
+        android:title="@string/pref_title_beacon_notifications_enter_distance" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="beacon_notifications_exit_distance"
+        android:title="@string/pref_title_beacon_notifications_exit_distance" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="beacon_monitor_distance"
+        android:title="@string/pref_title_beacon_monitor_distance" />
+
+    <EditTextPreference
+        android:inputType="number"
+        android:key="beacon_minimum_distance"
+        android:defaultValue="5"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_beacon_minimum_distance" />
+
     <EditTextPreference
         android:inputType="number"
         android:key="beacon_period_between_scans"

@@ -2,15 +2,18 @@ package com.gjermundbjaanes.beaconmqtt;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,15 +30,16 @@ import com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final String TAG = MainActivity.class.getName();
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private BeaconOverviewAdapter beaconOverviewAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,11 +49,17 @@ public class MainActivity extends AppCompatActivity {
         setUpBeaconOverviewList();
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        setUpBeaconOverviewList();
+    }
+
     private void setUpBeaconOverviewList() {
         ExpandableListView beaconOverviewListView = (ExpandableListView) findViewById(R.id.beacon_overview_list);
 
-        List<BeaconResult> beacons = new BeaconPersistence(this).getBeacons();
-        beaconOverviewAdapter = new BeaconOverviewAdapter(this, beacons);
+        beaconOverviewAdapter = new BeaconOverviewAdapter(this);
         beaconOverviewAdapter.setOnDeleteClickListener(new DeleteBeaconClickListener());
         beaconOverviewListView.setAdapter(beaconOverviewAdapter);
 
@@ -59,15 +69,17 @@ public class MainActivity extends AppCompatActivity {
         BeaconApplication beaconApplication = (BeaconApplication) getApplication();
         beaconApplication.setBeaconInRangeListener(new BeaconApplication.BeaconInRangeListener() {
             @Override
-            public void beaconsInRangeChanged(final List<BeaconResult> beacons) {
+            public void beaconsInRangeChanged() {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        beaconOverviewAdapter.updateBeaconsInRange(beacons);
+                        beaconOverviewAdapter.updateBeaconsInRange();
                     }
                 });
             }
         });
+        beaconOverviewAdapter.updateSavedBeacons();
+        beaconOverviewAdapter.updateBeaconsInRange();
     }
 
     private void checkPermissions() {
@@ -169,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                             BeaconPersistence beaconPersistence = new BeaconPersistence(MainActivity.this);
                             boolean beaconDeleted = beaconPersistence.deleteBeacon(beaconResult);
                             if (beaconDeleted) {
-                                beaconOverviewAdapter.updateSavedBeacons(beaconPersistence.getBeacons());
+                                beaconOverviewAdapter.updateSavedBeacons();
                                 ((BeaconApplication) getApplication()).restartBeaconSearch();
 
                             } else {
