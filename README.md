@@ -10,10 +10,11 @@ In the app you can search for and add beacons.
 You can then configure an MQTT broker that will be notified each time the beacons enter or exists the range of the phone. 
 
 There are a lot of configuration options like:
-* MQTT Becaon Enter Topic
-* MQTT Becaon Enter Distance Topic
+* MQTT Authentication
+* MQTT Beacon Enter Topic
+* MQTT Beacon Enter Distance Topic
 * MQTT Beacon Exit Topic
-* MQTT Becaon Exit Distance Topic
+* MQTT Beacon Exit Distance Topic
 * Time between scans
 * Time spent on scans
 * Minimum distance to trigger an event
