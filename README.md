@@ -1,4 +1,5 @@
 # BeaconMqtt
+> original code from https://github.com/bjaanes/BeaconMqtt
 
 ## About
 Android app to forward beacon events over MQTT (for home automation scenarios).
@@ -10,9 +11,12 @@ You can then configure an MQTT broker that will be notified each time the beacon
 
 There are a lot of configuration options like:
 * MQTT Becaon Enter Topic
+* MQTT Becaon Enter Distance Topic
 * MQTT Beacon Exit Topic
+* MQTT Becaon Exit Distance Topic
 * Time between scans
 * Time spent on scans
+* Minimum distance to trigger an event
 * Notifications for debug purposes
 * Log on the app for debug purposes
 
