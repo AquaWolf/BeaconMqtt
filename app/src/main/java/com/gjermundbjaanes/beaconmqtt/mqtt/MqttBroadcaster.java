@@ -4,6 +4,7 @@ package com.bsantalucia.beaconmqtt.mqtt;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -168,12 +169,16 @@ public class MqttBroadcaster {
     }
 
     private JSONObject getMessagePayload(String uuid, String mac, String major, String minor) {
+        String androidId = Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uuid", uuid);
             jsonObject.put("mac", mac);
             jsonObject.put("major", major);
             jsonObject.put("minor", minor);
+            jsonObject.put("androidId", androidId);
         } catch (JSONException e) {
             logPersistence.saveNewLog(context.getString(R.string.error_creating_payload, uuid, mac, major, minor), "");
             Log.e(TAG, context.getString(R.string.error_creating_payload, uuid, mac, major, minor), e);

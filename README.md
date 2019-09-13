@@ -25,9 +25,27 @@ Libraries used:
 * Eclipse MQTT
 * Android AltBeacon
 
+## Payload of MQTT Topics
+All topics will have the following payload:
+```
+{
+	uuid: "String - Beacon UUID",
+	mac: "String - Beacon Bluetooth address,
+	major: "String - Beacon Major",
+	minor: "String - Beacon Minor",
+	androidId: "String - Unique Android identification"
+}
+```
+In addition, `distance` topics will have one extra property:
+```
+{
+	distance: Number - current distance between Beacon and device
+}
+```
+
 ## Screenshots
 
-### Overivew
+### Overview
 
 ![Overview](https://github.com/bjaanes/BeaconMqtt/raw/master/screenshots/overview.png)
 
