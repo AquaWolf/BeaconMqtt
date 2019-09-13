@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt;
+package com.bsantalucia.beaconmqtt;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -9,8 +9,8 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconPersistence;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconResult;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconPersistence;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconResult;
 
 import java.util.ArrayList;
 import java.util.List;

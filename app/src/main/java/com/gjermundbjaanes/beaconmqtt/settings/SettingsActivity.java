@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.settings;
+package com.bsantalucia.beaconmqtt.settings;
 
 
 import android.annotation.TargetApi;
@@ -17,7 +17,7 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.widget.Toast;
 
-import com.gjermundbjaanes.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.R;
 
 import java.util.List;
 

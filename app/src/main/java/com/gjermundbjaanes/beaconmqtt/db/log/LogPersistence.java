@@ -1,19 +1,19 @@
-package com.gjermundbjaanes.beaconmqtt.db.log;
+package com.bsantalucia.beaconmqtt.db.log;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.gjermundbjaanes.beaconmqtt.db.DbHelper;
+import com.bsantalucia.beaconmqtt.db.DbHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gjermundbjaanes.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_EXTRA_INFO;
-import static com.gjermundbjaanes.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_LOG_LINE;
-import static com.gjermundbjaanes.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_TIME;
-import static com.gjermundbjaanes.beaconmqtt.db.log.LogContract.LogEntry.TABLE_NAME;
+import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_EXTRA_INFO;
+import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_LOG_LINE;
+import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_TIME;
+import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.TABLE_NAME;
 
 
 public class LogPersistence {

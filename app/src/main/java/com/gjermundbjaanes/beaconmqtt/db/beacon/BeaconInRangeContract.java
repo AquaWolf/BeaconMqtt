@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.db.beacon;
+package com.bsantalucia.beaconmqtt.db.beacon;
 
 import android.provider.BaseColumns;
 

@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.log;
+package com.bsantalucia.beaconmqtt.log;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -12,14 +12,14 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.gjermundbjaanes.beaconmqtt.R;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogPersistence;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogResult;
+import com.bsantalucia.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.db.log.LogPersistence;
+import com.bsantalucia.beaconmqtt.db.log.LogResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
 
 public class LogActivity extends AppCompatActivity {
 

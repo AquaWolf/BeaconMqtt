@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt;
+package com.bsantalucia.beaconmqtt;
 
 import android.app.Application;
 import android.app.Notification;
@@ -14,10 +14,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconPersistence;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconResult;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogPersistence;
-import com.gjermundbjaanes.beaconmqtt.mqtt.MqttBroadcaster;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconPersistence;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconResult;
+import com.bsantalucia.beaconmqtt.db.log.LogPersistence;
+import com.bsantalucia.beaconmqtt.mqtt.MqttBroadcaster;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
@@ -33,15 +33,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_MINIMUM_DISTANCE_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_MONITOR_DISTANCE_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_DISTANCE_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_PERIOD_BETWEEN_SCANS_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.BEACON_SCAN_PERIOD_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_MINIMUM_DISTANCE_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_MONITOR_DISTANCE_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_DISTANCE_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_PERIOD_BETWEEN_SCANS_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_SCAN_PERIOD_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_SCAN_PERIOD;
 

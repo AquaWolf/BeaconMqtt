@@ -1,5 +1,5 @@
 
-package com.gjermundbjaanes.beaconmqtt.mqtt;
+package com.bsantalucia.beaconmqtt.mqtt;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,8 +8,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gjermundbjaanes.beaconmqtt.R;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogPersistence;
+import com.bsantalucia.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.db.log.LogPersistence;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -22,15 +22,15 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_DISTANCE_TOPIC_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_TOPIC_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_DISTANCE_TOPIC_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_TOPIC_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_PORT_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_SERVER_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_USER_KEY;
-import static com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity.MQTT_PASS_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_DISTANCE_TOPIC_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_TOPIC_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_DISTANCE_TOPIC_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_TOPIC_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_PORT_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_SERVER_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_USER_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_PASS_KEY;
 
 
 public class MqttBroadcaster {

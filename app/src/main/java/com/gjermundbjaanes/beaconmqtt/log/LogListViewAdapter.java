@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.log;
+package com.bsantalucia.beaconmqtt.log;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.gjermundbjaanes.beaconmqtt.BeaconApplication;
-import com.gjermundbjaanes.beaconmqtt.R;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogResult;
+import com.bsantalucia.beaconmqtt.BeaconApplication;
+import com.bsantalucia.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.db.log.LogResult;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

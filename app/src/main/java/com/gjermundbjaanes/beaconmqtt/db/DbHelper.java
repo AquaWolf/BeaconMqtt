@@ -1,13 +1,13 @@
-package com.gjermundbjaanes.beaconmqtt.db;
+package com.bsantalucia.beaconmqtt.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconInDistanceContract;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconInRangeContract;
-import com.gjermundbjaanes.beaconmqtt.db.log.LogContract;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconContract;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconInDistanceContract;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconInRangeContract;
+import com.bsantalucia.beaconmqtt.db.log.LogContract;
 
 public class DbHelper extends SQLiteOpenHelper {
 

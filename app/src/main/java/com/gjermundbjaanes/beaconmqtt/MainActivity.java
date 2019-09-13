@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt;
+package com.bsantalucia.beaconmqtt;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -21,11 +21,11 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconPersistence;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconResult;
-import com.gjermundbjaanes.beaconmqtt.log.LogActivity;
-import com.gjermundbjaanes.beaconmqtt.newbeacon.NewBeaconActivity;
-import com.gjermundbjaanes.beaconmqtt.settings.SettingsActivity;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconPersistence;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconResult;
+import com.bsantalucia.beaconmqtt.log.LogActivity;
+import com.bsantalucia.beaconmqtt.newbeacon.NewBeaconActivity;
+import com.bsantalucia.beaconmqtt.settings.SettingsActivity;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.newbeacon;
+package com.bsantalucia.beaconmqtt.newbeacon;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.gjermundbjaanes.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.R;
 
 import java.util.ArrayList;
 import java.util.List;

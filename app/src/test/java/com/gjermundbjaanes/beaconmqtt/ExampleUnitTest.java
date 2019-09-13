@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt;
+package com.bsantalucia.beaconmqtt;
 
 import org.junit.Test;
 

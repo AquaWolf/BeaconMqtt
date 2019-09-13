@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.newbeacon;
+package com.bsantalucia.beaconmqtt.newbeacon;
 
 import org.altbeacon.beacon.Beacon;
 

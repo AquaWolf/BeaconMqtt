@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.db.log;
+package com.bsantalucia.beaconmqtt.db.log;
 
 public class LogResult {
 

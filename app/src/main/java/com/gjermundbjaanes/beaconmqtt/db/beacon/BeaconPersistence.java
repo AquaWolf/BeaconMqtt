@@ -1,23 +1,23 @@
-package com.gjermundbjaanes.beaconmqtt.db.beacon;
+package com.bsantalucia.beaconmqtt.db.beacon;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.gjermundbjaanes.beaconmqtt.db.DbHelper;
+import com.bsantalucia.beaconmqtt.db.DbHelper;
 
 import org.altbeacon.beacon.Beacon;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_INFORMAL_NAME;
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAC;
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAJOR;
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MINOR;
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_UUID;
-import static com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.TABLE_NAME;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_INFORMAL_NAME;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAC;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MAJOR;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_MINOR;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.COLUMN_NAME_UUID;
+import static com.bsantalucia.beaconmqtt.db.beacon.BeaconContract.BeaconEntry.TABLE_NAME;
 
 public class BeaconPersistence {
     private static final String BEACON_IN_DISTANCE_PRIMARY_KEY_SELECTION = BeaconInDistanceContract.BeaconEntry.COLUMN_NAME_UUID + "=? AND " + BeaconInDistanceContract.BeaconEntry.COLUMN_NAME_MAC + "=? AND " + BeaconInDistanceContract.BeaconEntry.COLUMN_NAME_MAJOR + "=? AND " + BeaconInDistanceContract.BeaconEntry.COLUMN_NAME_MINOR + "=?";

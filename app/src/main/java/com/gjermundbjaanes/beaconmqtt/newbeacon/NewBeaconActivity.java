@@ -1,4 +1,4 @@
-package com.gjermundbjaanes.beaconmqtt.newbeacon;
+package com.bsantalucia.beaconmqtt.newbeacon;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,10 +18,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gjermundbjaanes.beaconmqtt.BeaconApplication;
-import com.gjermundbjaanes.beaconmqtt.R;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconPersistence;
-import com.gjermundbjaanes.beaconmqtt.db.beacon.BeaconResult;
+import com.bsantalucia.beaconmqtt.BeaconApplication;
+import com.bsantalucia.beaconmqtt.R;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconPersistence;
+import com.bsantalucia.beaconmqtt.db.beacon.BeaconResult;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
