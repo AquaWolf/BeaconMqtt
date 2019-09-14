@@ -34,6 +34,10 @@ import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_USER_KEY
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_PASS_KEY;
 
 
+interface ConnectCallback {
+    void run(MqttAndroidClient mqttAndroidClient);
+}
+
 public class MqttBroadcaster {
 
     private static final String TAG = MqttBroadcaster.class.getName();
@@ -44,7 +48,6 @@ public class MqttBroadcaster {
     private static final String DEFAULT_EXIT_DISTANCE_TOPIC = "beacon/exit/distance";
     private final Context context;
 
-    private MqttAndroidClient mqttAndroidClient = null;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private final SharedPreferences defaultSharedPreferences;
     private final LogPersistence logPersistence;
@@ -55,13 +58,6 @@ public class MqttBroadcaster {
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         registerSettingsChangeListener();
-
-        String mqttServer = defaultSharedPreferences.getString(MQTT_SERVER_KEY, null);
-        String mqttPort = defaultSharedPreferences.getString(MQTT_PORT_KEY, null);
-        String mqttUser = defaultSharedPreferences.getString(MQTT_USER_KEY, null);
-        String mqttPassword = defaultSharedPreferences.getString(MQTT_PASS_KEY, null);
-
-        connectToMqttServer(mqttServer, mqttPort, mqttUser, mqttPassword);
     }
 
     public void publishEnterMessage(String uuid, String mac, String major, String minor) {
@@ -89,18 +85,30 @@ public class MqttBroadcaster {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (MQTT_SERVER_KEY.equals(key) || MQTT_PORT_KEY.equals(key)) {
-                    String mqttServer = defaultSharedPreferences.getString(MQTT_SERVER_KEY, null);
-                    String mqttPort = defaultSharedPreferences.getString(MQTT_PORT_KEY, null);
-                    String mqttUser = defaultSharedPreferences.getString(MQTT_USER_KEY, null);
-                    String mqttPassword = defaultSharedPreferences.getString(MQTT_PASS_KEY, null);
-                    connectToMqttServer(mqttServer, mqttPort, mqttUser, mqttPassword);
+                    connectToMqttServer();
                 }
             }
         };
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
-    private void connectToMqttServer(String mqttServer, String mqttPort, String mqttUser, String mqttPassword) {
+    private void connectToMqttServer() {
+        connectToMqttServer(new ConnectCallback() {
+            @Override
+            public void run(MqttAndroidClient mqttAndroidClient) {
+
+            }
+        });
+    }
+
+    private void connectToMqttServer(final ConnectCallback callback) {
+        String mqttServer = defaultSharedPreferences.getString(MQTT_SERVER_KEY, null);
+        String mqttPort = defaultSharedPreferences.getString(MQTT_PORT_KEY, null);
+        String mqttUser = defaultSharedPreferences.getString(MQTT_USER_KEY, null);
+        String mqttPassword = defaultSharedPreferences.getString(MQTT_PASS_KEY, null);
+
+        final MqttAndroidClient mqttAndroidClient;
+
         if (mqttServer != null && mqttPort != null) {
             final String serverUri = "tcp://" + mqttServer + ":" + mqttPort;
 
@@ -134,11 +142,11 @@ public class MqttBroadcaster {
                         disconnectedBufferOptions.setPersistBuffer(false);
                         disconnectedBufferOptions.setDeleteOldestMessages(false);
                         mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
+                        callback.run(mqttAndroidClient);
                     }
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        mqttAndroidClient = null;
                         logPersistence.saveNewLog(context.getString(R.string.failed_to_connect_mqtt_server, serverUri), "");
                         Toast.makeText(context, context.getString(R.string.failed_to_connect_mqtt_server, serverUri), Toast.LENGTH_LONG).show();
                         Log.e(TAG, context.getString(R.string.failed_to_connect_mqtt_server, serverUri), exception);
@@ -149,12 +157,10 @@ public class MqttBroadcaster {
             }
 
         } else {
-            mqttAndroidClient = null;
             logPersistence.saveNewLog(context.getString(R.string.mqtt_missing_server_or_port), "");
             Toast.makeText(context, R.string.mqtt_missing_server_or_port, Toast.LENGTH_LONG).show();
             Log.i(TAG, context.getString(R.string.mqtt_missing_server_or_port));
         }
-
     }
 
     private JSONObject getMessagePayload(String uuid, String mac, String major, String minor, double distance) {
@@ -187,22 +193,23 @@ public class MqttBroadcaster {
         return jsonObject;
     }
 
-    private void publishMessage(JSONObject payload, String topic) {
-        if (mqttAndroidClient != null) {
-            MqttMessage mqttMessage = new MqttMessage();
-            mqttMessage.setPayload(payload.toString().getBytes());
-            try {
-                mqttAndroidClient.publish(topic, mqttMessage);
-            } catch (MqttException ex){
-                ex.printStackTrace();
+    private void publishMessage(final JSONObject payload, final String topic) {
+        connectToMqttServer(new ConnectCallback() {
+            @Override
+            public void run(MqttAndroidClient mqttAndroidClient) {
+                MqttMessage mqttMessage = new MqttMessage();
+                mqttMessage.setPayload(payload.toString().getBytes());
+                try {
+                    mqttAndroidClient.publish(topic, mqttMessage);
+                } catch (MqttException ex){
+                    ex.printStackTrace();
+                }
+                boolean logEvent = defaultSharedPreferences.getBoolean(GENEARL_LOG_KEY, false);
+                if (logEvent) {
+                    String logMessage = context.getString(R.string.published_mqtt_message_to_topic, mqttMessage, topic);
+                    logPersistence.saveNewLog(logMessage, "");
+                }
             }
-            boolean logEvent = defaultSharedPreferences.getBoolean(GENEARL_LOG_KEY, false);
-            if (logEvent) {
-                String logMessage = context.getString(R.string.published_mqtt_message_to_topic, mqttMessage, topic);
-                logPersistence.saveNewLog(logMessage, "");
-            }
-        } else {
-            Log.i(TAG, context.getString(R.string.publish_failed_not_set_up));
-        }
+        });
     }
 }

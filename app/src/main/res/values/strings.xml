@@ -31,7 +31,6 @@
     <string name="published_mqtt_message_to_topic">Published MQTT message: %1$s to topic: %2$s</string>
     <string name="error_creating_payload">Error Creating payload for uuid: %1$s, mac %2$s, major: %3$s, minor: %4$s</string>
     <string name="error_creating_distance_payload">Error Creating payload for uuid: %1$s, mac %2$s, major: %3$s, minor: %4$s, distance: %5$f</string>
-    <string name="publish_failed_not_set_up">Publish not done because mqttAndroidClient is not set up</string>
     <string name="connecting_to_mqtt_server">Connecting to MQTT server...</string>
     <string name="connection_successful">Connection successful!</string>
 

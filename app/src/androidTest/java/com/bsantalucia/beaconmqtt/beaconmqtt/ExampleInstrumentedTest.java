@@ -1,4 +1,4 @@
-package com.bsantalucia.beaconmqtt;
+package com.bsantalucia.beaconmqtt.beaconmqtt;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

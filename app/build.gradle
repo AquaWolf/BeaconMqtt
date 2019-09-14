@@ -11,8 +11,8 @@ android {
         //                + versionMinor * 100
         //                + versionPatch
         //    versionName “${versionMajor}.${versionMinor}.${versionPatch}”
-        versionCode 101000
-        versionName "1.1.0"
+        versionCode 101001
+        versionName "1.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
