@@ -23,7 +23,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_LOG_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_DISTANCE_TOPIC_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_TOPIC_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_DISTANCE_TOPIC_KEY;
@@ -204,7 +204,7 @@ public class MqttBroadcaster {
                 } catch (MqttException ex){
                     ex.printStackTrace();
                 }
-                boolean logEvent = defaultSharedPreferences.getBoolean(GENEARL_LOG_KEY, false);
+                boolean logEvent = defaultSharedPreferences.getBoolean(GENERAL_LOG_KEY, false);
                 if (logEvent) {
                     String logMessage = context.getString(R.string.published_mqtt_message_to_topic, mqttMessage, topic);
                     logPersistence.saveNewLog(logMessage, "");

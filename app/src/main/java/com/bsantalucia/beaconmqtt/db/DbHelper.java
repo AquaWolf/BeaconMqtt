@@ -8,11 +8,12 @@ import com.bsantalucia.beaconmqtt.db.beacon.BeaconContract;
 import com.bsantalucia.beaconmqtt.db.beacon.BeaconInDistanceContract;
 import com.bsantalucia.beaconmqtt.db.beacon.BeaconInRangeContract;
 import com.bsantalucia.beaconmqtt.db.log.LogContract;
+import com.bsantalucia.beaconmqtt.db.pid.PidContract;
 
 public class DbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     private static final String DATABASE_NAME = "Beacon.db";
 
     private static final String SQL_CREATE_BEACON_TABLE =
@@ -62,6 +63,12 @@ public class DbHelper extends SQLiteOpenHelper {
                     LogContract.LogEntry.COLUMN_NAME_LOG_LINE + " TEXT," +
                     LogContract.LogEntry.COLUMN_NAME_EXTRA_INFO + " TEXT)";
 
+    private static final String SQL_CREATE_PID_TABLE =
+            "CREATE TABLE " + PidContract.PidEntry.TABLE_NAME + " (" +
+                    PidContract.PidEntry.COLUMN_NAME_PID + " TEXT," +
+                    "PRIMARY KEY (" +
+                    PidContract.PidEntry.COLUMN_NAME_PID + ")" +
+                    ");";
 
     private static final String SQL_DELETE_BEACON_TABLE =
             "DROP TABLE IF EXISTS " + BeaconContract.BeaconEntry.TABLE_NAME;
@@ -75,6 +82,9 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_LOG_TABLE =
             "DROP TABLE IF EXISTS " + LogContract.LogEntry.TABLE_NAME;
 
+    private static final String SQL_DELETE_PID_TABLE =
+            "DROP TABLE IF EXISTS " + PidContract.PidEntry.TABLE_NAME;
+
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -85,6 +95,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_BEACON_IN_RANGE_TABLE);
         db.execSQL(SQL_CREATE_BEACON_IN_DISTANCE_TABLE);
         db.execSQL(SQL_CREATE_LOG_TABLE);
+        db.execSQL(SQL_CREATE_PID_TABLE);
     }
 
     @Override
@@ -95,6 +106,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_BEACON_IN_RANGE_TABLE);
         db.execSQL(SQL_DELETE_BEACON_IN_DISTANCE_TABLE);
         db.execSQL(SQL_DELETE_LOG_TABLE);
+        db.execSQL(SQL_DELETE_PID_TABLE);
         onCreate(db);
     }
 

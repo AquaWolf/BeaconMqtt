@@ -1,8 +1,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:defaultValue="false"
-        android:key="general_create_log"
-        android:title="@string/pref_title_general_create_log" />
+    android:defaultValue="false"
+    android:key="general_create_log"
+    android:title="@string/pref_title_general_create_log" />
+
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="general_enable_monitoring"
+        android:title="@string/pref_title_general_general_enable_monitoring" />
 
 </PreferenceScreen>

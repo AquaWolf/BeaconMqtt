@@ -34,7 +34,8 @@ import java.util.List;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
-    public static final String GENEARL_LOG_KEY = "general_create_log";
+    public static final String GENERAL_LOG_KEY = "general_create_log";
+    public static final String GENERAL_ENABLE_MONITORING = "general_enable_monitoring";
 
     public static final String MQTT_SERVER_KEY = "mqtt_server";
     public static final String MQTT_PORT_KEY = "mqtt_port";
@@ -256,7 +257,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            findPreference(GENEARL_LOG_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            findPreference(GENERAL_LOG_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if ((boolean) newValue) {

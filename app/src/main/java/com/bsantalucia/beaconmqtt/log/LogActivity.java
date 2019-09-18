@@ -19,7 +19,7 @@ import com.bsantalucia.beaconmqtt.db.log.LogResult;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENEARL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_LOG_KEY;
 
 public class LogActivity extends AppCompatActivity {
 
@@ -53,7 +53,7 @@ public class LogActivity extends AppCompatActivity {
             }
         });
 
-        boolean loggingOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(GENEARL_LOG_KEY, false);
+        boolean loggingOn = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(GENERAL_LOG_KEY, false);
         if (!loggingOn) {
             Toast.makeText(this, R.string.logging_turned_off_message, Toast.LENGTH_LONG).show();
         }

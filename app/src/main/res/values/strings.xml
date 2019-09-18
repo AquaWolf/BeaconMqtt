@@ -87,4 +87,5 @@
     <string name="pref_title_beacon_notifications_exit_distance">Show Notifications on Beacon Exit Distance</string>
     <string name="pref_title_beacon_minimum_distance">Distance minimum to trigger an event (in meter)</string>
     <string name="pref_title_beacon_monitor_distance">Monitor beacon distance</string>
+    <string name="pref_title_general_general_enable_monitoring">enable monitoring</string>
 </resources>
