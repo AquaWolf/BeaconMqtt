@@ -74,7 +74,7 @@
     <string name="logging_turned_off_message">Logging is turned off, go to settings to turn it on.</string>
     <string name="notification_channel_name">beaconMqtt Notifications</string>
     <string name="notification_channel_description">Notifications raised when entering/leaving a beacon</string>
-    <string name="auto_launching">auto launching Activity</string>
+    <string name="auto_launching">Auto launching Activity</string>
 
     <string name="accessibility_service_description">accessibility service to maintain app alive</string>
     <string name="beacon_spotted_and_ignored_notification_message">but is was ignored because marked as already in range</string>
@@ -87,5 +87,23 @@
     <string name="pref_title_beacon_notifications_exit_distance">Show Notifications on Beacon Exit Distance</string>
     <string name="pref_title_beacon_minimum_distance">Distance minimum to trigger an event (in meter)</string>
     <string name="pref_title_beacon_monitor_distance">Monitor beacon distance</string>
-    <string name="pref_title_general_general_enable_monitoring">enable monitoring</string>
+    <string name="pref_title_general_general_enable_monitoring">Enable monitoring</string>
+    <string name="pref_title_webhook_url">Webhook url</string>
+    <string name="pref_title_webhook_method">Method</string>
+    <string name="pref_title_webhook_enter_payload">Payload for enter event</string>
+    <string name="pref_title_webhook_exit_payload">Payload for exit event</string>
+    <string name="pref_title_webhook_enter_distance_payload">Payload for enter distance event</string>
+    <string name="pref_title_webhook_exit_distance_payload">Payload for exit distance event</string>
+    <string name="pref_title_mqtt_payload">Default MQTT payload</string>
+    <string name="pref_summary_mqtt_payload">{uuid: \"String - Beacon UUID\", mac: \"String - Beacon Bluetooth address, major: \"String - Beacon Major\", minor: \"String - Beacon Minor\", androidId: \"String - Unique Android identification\" }</string>
+    <string name="pref_title_webhook_extra_payload">Configurable Payload must...</string>
+    <string name="pref_summary_webhook_extra_payload">...be a valid JSON. The content will be merged with the default payload</string>
+    <string name="pref_title_webhook_payload">Default Webhook payload</string>
+    <string name="pref_summary_webhook_payload">{uuid: \"String - Beacon UUID\", mac: \"String - Beacon Bluetooth address, major: \"String - Beacon Major\", minor: \"String - Beacon Minor\", androidId: \"String - Unique Android identification\" }</string>
+    <string name="pref_header_webhook">Webhook</string>
+    <string name="pref_title_mqtt_enable">Enable MQTT</string>
+    <string name="pref_title_webhook_enable">Enable webhook</string>
+    <string name="webhook_invalid_payload">Configured webhook payload is not a valid JSON</string>
+    <string name="pref_title_webhook_content_type">Content type</string>
+    <string name="webhook_invalid_url">Webhook url is invalid</string>
 </resources>

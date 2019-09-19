@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.bsantalucia.beaconmqtt.R;
 import com.bsantalucia.beaconmqtt.db.log.LogPersistence;
+import com.bsantalucia.beaconmqtt.json.JSONPayload;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -24,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_LOG_KEY;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENABLE_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_DISTANCE_TOPIC_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_ENTER_TOPIC_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.MQTT_EXIT_DISTANCE_TOPIC_KEY;
@@ -47,6 +49,7 @@ public class MqttBroadcaster {
     private static final String DEFAULT_ENTER_DISTANCE_TOPIC = "beacon/enter/distance";
     private static final String DEFAULT_EXIT_DISTANCE_TOPIC = "beacon/exit/distance";
     private final Context context;
+    private final JSONPayload jsonPayload;
 
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private final SharedPreferences defaultSharedPreferences;
@@ -56,28 +59,28 @@ public class MqttBroadcaster {
         this.context = context;
         logPersistence = new LogPersistence(context);
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-
+        jsonPayload = new JSONPayload(context);
         registerSettingsChangeListener();
     }
 
     public void publishEnterMessage(String uuid, String mac, String major, String minor) {
         String preferenceEnterTopic = defaultSharedPreferences.getString(MQTT_ENTER_TOPIC_KEY, DEFAULT_ENTER_TOPIC);
-        publishMessage(getMessagePayload(uuid, mac, major, minor), preferenceEnterTopic);
+        publishMessage(jsonPayload.getMessagePayload(uuid, mac, major, minor), preferenceEnterTopic);
     }
 
     public void publishExitMessage(String uuid, String mac, String major, String minor) {
         String preferenceExitTopic = defaultSharedPreferences.getString(MQTT_EXIT_TOPIC_KEY, DEFAULT_EXIT_TOPIC);
-        publishMessage(getMessagePayload(uuid, mac, major, minor), preferenceExitTopic);
+        publishMessage(jsonPayload.getMessagePayload(uuid, mac, major, minor), preferenceExitTopic);
     }
 
     public void publishEnterDistanceMessage(String uuid, String mac, String major, String minor, double distance) {
         String preferenceDistanceTopic = defaultSharedPreferences.getString(MQTT_ENTER_DISTANCE_TOPIC_KEY, DEFAULT_ENTER_DISTANCE_TOPIC);
-        publishMessage(getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
+        publishMessage(jsonPayload.getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
     }
 
     public void publishExitDistanceMessage(String uuid, String mac, String major, String minor, double distance) {
         String preferenceDistanceTopic = defaultSharedPreferences.getString(MQTT_EXIT_DISTANCE_TOPIC_KEY, DEFAULT_EXIT_DISTANCE_TOPIC);
-        publishMessage(getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
+        publishMessage(jsonPayload.getMessagePayload(uuid, mac, major, minor, distance), preferenceDistanceTopic);
     }
 
     private void registerSettingsChangeListener() {
@@ -106,8 +109,13 @@ public class MqttBroadcaster {
         String mqttPort = defaultSharedPreferences.getString(MQTT_PORT_KEY, null);
         String mqttUser = defaultSharedPreferences.getString(MQTT_USER_KEY, null);
         String mqttPassword = defaultSharedPreferences.getString(MQTT_PASS_KEY, null);
+        Boolean mqttEnabled = defaultSharedPreferences.getBoolean(MQTT_ENABLE_KEY, true);
 
         final MqttAndroidClient mqttAndroidClient;
+
+        if(!mqttEnabled) {
+            return;
+        }
 
         if (mqttServer != null && mqttPort != null) {
             final String serverUri = "tcp://" + mqttServer + ":" + mqttPort;
@@ -161,36 +169,6 @@ public class MqttBroadcaster {
             Toast.makeText(context, R.string.mqtt_missing_server_or_port, Toast.LENGTH_LONG).show();
             Log.i(TAG, context.getString(R.string.mqtt_missing_server_or_port));
         }
-    }
-
-    private JSONObject getMessagePayload(String uuid, String mac, String major, String minor, double distance) {
-        JSONObject jsonObject = getMessagePayload(uuid, mac, major, minor);
-        try {
-            jsonObject.put("distance", distance);
-        } catch (JSONException e) {
-            logPersistence.saveNewLog(context.getString(R.string.error_creating_distance_payload, uuid, mac, major, minor, distance), "");
-            Log.e(TAG, context.getString(R.string.error_creating_distance_payload, uuid, mac, major, minor, distance), e);
-        }
-        return jsonObject;
-    }
-
-    private JSONObject getMessagePayload(String uuid, String mac, String major, String minor) {
-        String androidId = Settings.Secure.getString(context.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("uuid", uuid);
-            jsonObject.put("mac", mac);
-            jsonObject.put("major", major);
-            jsonObject.put("minor", minor);
-            jsonObject.put("androidId", androidId);
-        } catch (JSONException e) {
-            logPersistence.saveNewLog(context.getString(R.string.error_creating_payload, uuid, mac, major, minor), "");
-            Log.e(TAG, context.getString(R.string.error_creating_payload, uuid, mac, major, minor), e);
-        }
-
-        return jsonObject;
     }
 
     private void publishMessage(final JSONObject payload, final String topic) {

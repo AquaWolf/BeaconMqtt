@@ -46,6 +46,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String MQTT_EXIT_TOPIC_KEY = "mqtt_exit_topic";
     public static final String MQTT_ENTER_DISTANCE_TOPIC_KEY = "mqtt_enter_distance_topic";
     public static final String MQTT_EXIT_DISTANCE_TOPIC_KEY = "mqtt_exit_distance_topic";
+    public static final String MQTT_ENABLE_KEY = "mqtt_enable";
 
     public static final String BEACON_MONITOR_DISTANCE_KEY = "beacon_monitor_distance";
     public static final String BEACON_MINIMUM_DISTANCE_KEY = "beacon_minimum_distance";
@@ -55,6 +56,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY = "beacon_notifications_exit_distance";
     public static final String BEACON_PERIOD_BETWEEN_SCANS_KEY = "beacon_period_between_scans";
     public static final String BEACON_SCAN_PERIOD_KEY = "beacon_scan_period";
+
+    public static final String WEBHOOK_ENTER_PAYLOAD_KEY = "webhook_enter_payload";
+    public static final String WEBHOOK_EXIT_PAYLOAD_KEY = "webhook_exit_payload";
+    public static final String WEBHOOK_ENTER_DISTANCE_PAYLOAD_KEY = "webhook_enter_distance_payload";
+    public static final String WEBHOOK_EXIT_DISTANCE_PAYLOAD_KEY = "webhook_exit_distance_payload";
+    public static final String WEBHOOK_ENABLE_KEY = "webhook_enable";
+    public static final String WEBHOOK_CONTENT_TYPE_KEY = "webhook_content_type";
+    public static final String WEBHOOK_METHOD_KEY = "webhook_method";
+    public static final String WEBHOOK_URL_KEY = "webhook_url";
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -168,8 +178,46 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || MqttPreferenceFragment.class.getName().equals(fragmentName)
+                || WebhookPreferenceFragment.class.getName().equals(fragmentName)
                 || BeaconPreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
+    }
+
+    /**
+     * This fragment shows webhook preferences only. It is used when the
+     * activity is showing a two-pane settings UI.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class WebhookPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_mqtt);
+            setHasOptionsMenu(true);
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_ENTER_PAYLOAD_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_EXIT_PAYLOAD_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_ENTER_DISTANCE_PAYLOAD_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_EXIT_DISTANCE_PAYLOAD_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_CONTENT_TYPE_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_METHOD_KEY));
+            bindPreferenceSummaryToValue(findPreference(WEBHOOK_URL_KEY));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
@@ -191,7 +239,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(MQTT_SERVER_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_PORT_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_USER_KEY));
-            bindPreferenceSummaryToValue(findPreference(MQTT_PASS_KEY));
+            //bindPreferenceSummaryToValue(findPreference(MQTT_PASS_KEY)); // do not bind password, we want it to be hidden
             bindPreferenceSummaryToValue(findPreference(MQTT_ENTER_TOPIC_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_EXIT_TOPIC_KEY));
             bindPreferenceSummaryToValue(findPreference(MQTT_ENTER_DISTANCE_TOPIC_KEY));

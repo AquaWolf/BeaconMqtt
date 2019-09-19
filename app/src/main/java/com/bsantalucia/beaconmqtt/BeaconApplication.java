@@ -19,6 +19,7 @@ import com.bsantalucia.beaconmqtt.db.beacon.BeaconResult;
 import com.bsantalucia.beaconmqtt.db.log.LogPersistence;
 import com.bsantalucia.beaconmqtt.db.pid.PidPersistence;
 import com.bsantalucia.beaconmqtt.mqtt.MqttBroadcaster;
+import com.bsantalucia.beaconmqtt.webhook.WebhookBroadcaster;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
@@ -59,6 +60,7 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     private BeaconPersistence beaconPersistence = new BeaconPersistence(this);
     private LogPersistence logPersistence = new LogPersistence(this);
     private MqttBroadcaster mqttBroadcaster = null;
+    private WebhookBroadcaster webhookBroadcaster = null;
     private BeaconInRangeListener beaconInRangeListener = null;
 
     private String NOTIFICATION_CHANNEL_ID = "beacon_mqtt_channel_id_01";
@@ -88,7 +90,10 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
         if (mqttBroadcaster == null) {
             mqttBroadcaster = new MqttBroadcaster(this);
-        } // TODO: Should I set the context again?
+        }
+        if (webhookBroadcaster == null) {
+            webhookBroadcaster = new WebhookBroadcaster(this);
+        }
 
         beaconManager = setUpBeaconManager();
 //        beaconManager.setDebug(true);
@@ -342,6 +347,8 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
 
             mqttBroadcaster.publishEnterMessage(uuid, mac, major, minor);
 
+            webhookBroadcaster.publishEnterMessage(uuid, mac, major, minor);
+
             boolean showNotification = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_NOTIFICATIONS_ENTER_KEY, false);
             if (showNotification) {
                 showNotification(getString(R.string.beacon_spotted_notification_title), message);
@@ -367,6 +374,8 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         }
         if (messageType == MESSAGE_TYPE.EXIT) {
             mqttBroadcaster.publishExitMessage(uuid, mac, major, minor);
+
+            webhookBroadcaster.publishExitMessage(uuid, mac, major, minor);
 
             String message = getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor);
             if (beacon.getInformalName() != null) {

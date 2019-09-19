@@ -1,0 +1,17 @@
+<resources>
+    <string-array name="methods">
+        <item>POST</item>
+        <item>GET</item>
+        <item>PUT</item>
+        <item>DELETE</item>
+        <item>HEAD</item>
+        <item>PATCH</item>
+        <item>OPTION</item>
+    </string-array>
+
+    <string-array name="content_type">
+        <item>application/json</item>
+        <item>application/x-www-form-urlencoded</item>
+        <item>text/plain</item>
+    </string-array>
+</resources>

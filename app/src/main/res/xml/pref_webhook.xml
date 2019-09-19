@@ -1,0 +1,79 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="webhook_enable"
+        android:title="@string/pref_title_webhook_enable" />
+
+    <EditTextPreference
+        android:inputType="textUri"
+        android:key="webhook_url"
+        android:maxLines="3"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        android:title="@string/pref_title_webhook_url" />
+
+
+    <ListPreference
+        android:key="webhook_method"
+        android:title="@string/pref_title_webhook_method"
+        android:entries="@array/methods" />
+
+    <ListPreference
+        android:key="webhook_content_type"
+        android:title="@string/pref_title_webhook_content_type"
+        android:entries="@array/content_type" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="webhook_enter_payload"
+        android:defaultValue="{}"
+        android:maxLines="3"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        android:title="@string/pref_title_webhook_enter_payload" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="webhook_exit_topic"
+        android:defaultValue="{}"
+        android:maxLines="3"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        android:title="@string/pref_title_webhook_exit_payload" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="webhook_enter_distance_topic"
+        android:defaultValue="{}"
+        android:maxLines="3"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        android:title="@string/pref_title_webhook_enter_distance_payload" />
+
+    <EditTextPreference
+        android:inputType="text"
+        android:key="webhook_exit_distance_topic"
+        android:defaultValue="{}"
+        android:maxLines="3"
+        android:selectAllOnFocus="true"
+        android:singleLine="false"
+        android:title="@string/pref_title_webhook_exit_distance_payload" />
+
+    <Preference
+        android:selectable="false"
+        android:enabled="true"
+        android:key="webhook_payload_extra"
+        android:title="@string/pref_title_webhook_extra_payload"
+        android:summary="@string/pref_summary_webhook_extra_payload" />
+
+    <Preference
+        android:selectable="false"
+        android:enabled="true"
+        android:key="webhook_payload"
+        android:title="@string/pref_title_webhook_payload"
+        android:summary="@string/pref_summary_webhook_payload" />
+
+</PreferenceScreen>
