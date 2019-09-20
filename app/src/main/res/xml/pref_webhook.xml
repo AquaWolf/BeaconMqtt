@@ -19,12 +19,14 @@
     <ListPreference
         android:key="webhook_method"
         android:title="@string/pref_title_webhook_method"
-        android:entries="@array/methods" />
+        android:entries="@array/methods"
+        android:entryValues="@array/methods" />
 
     <ListPreference
         android:key="webhook_content_type"
         android:title="@string/pref_title_webhook_content_type"
-        android:entries="@array/content_type" />
+        android:entries="@array/content_type"
+        android:entryValues="@array/content_type" />
 
     <EditTextPreference
         android:inputType="text"
@@ -37,7 +39,7 @@
 
     <EditTextPreference
         android:inputType="text"
-        android:key="webhook_exit_topic"
+        android:key="webhook_exit_payload"
         android:defaultValue="{}"
         android:maxLines="3"
         android:selectAllOnFocus="true"
@@ -46,7 +48,7 @@
 
     <EditTextPreference
         android:inputType="text"
-        android:key="webhook_enter_distance_topic"
+        android:key="webhook_enter_distance_payload"
         android:defaultValue="{}"
         android:maxLines="3"
         android:selectAllOnFocus="true"
@@ -55,7 +57,7 @@
 
     <EditTextPreference
         android:inputType="text"
-        android:key="webhook_exit_distance_topic"
+        android:key="webhook_exit_distance_payload"
         android:defaultValue="{}"
         android:maxLines="3"
         android:selectAllOnFocus="true"

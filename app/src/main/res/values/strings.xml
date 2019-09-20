@@ -106,4 +106,5 @@
     <string name="webhook_invalid_payload">Configured webhook payload is not a valid JSON</string>
     <string name="pref_title_webhook_content_type">Content type</string>
     <string name="webhook_invalid_url">Webhook url is invalid</string>
+    <string name="webhook_done">Webhook executed</string>
 </resources>
