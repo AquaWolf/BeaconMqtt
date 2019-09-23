@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 
 import com.bsantalucia.beaconmqtt.db.DbHelper;
 
@@ -14,13 +15,16 @@ import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME
 import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_LOG_LINE;
 import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.COLUMN_NAME_TIME;
 import static com.bsantalucia.beaconmqtt.db.log.LogContract.LogEntry.TABLE_NAME;
+import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_LOG_KEY;
 
 
 public class LogPersistence {
 
     private final DbHelper dbHelper;
+    private final Context context;
 
     public LogPersistence(Context context) {
+        this.context = context;
         dbHelper = new DbHelper(context);
     }
 
@@ -55,6 +59,9 @@ public class LogPersistence {
     }
 
     public void saveNewLog(String logLine, String extraInfo) {
+        boolean logEvent = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(GENERAL_LOG_KEY, false);
+        if(!logEvent) { return; }
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         try {

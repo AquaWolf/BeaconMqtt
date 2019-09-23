@@ -38,14 +38,10 @@ import java.util.UUID;
 
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_MINIMUM_DISTANCE_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_MONITOR_DISTANCE_KEY;
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_DISTANCE_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_ENTER_KEY;
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY;
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_NOTIFICATIONS_EXIT_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_PERIOD_BETWEEN_SCANS_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.BEACON_SCAN_PERIOD_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_ENABLE_MONITORING;
-import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.GENERAL_LOG_KEY;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD;
 import static org.altbeacon.beacon.BeaconManager.DEFAULT_BACKGROUND_SCAN_PERIOD;
 
@@ -68,8 +64,10 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     private NotificationManager notificationManager;
     private BeaconManager beaconManager;
     private PidPersistence pidPersistence;
+    private SharedPreferences defaultSharedPreferences;
+    private double minimumDistance;
 
-    private enum MESSAGE_TYPE { ENTER, EXIT };
+    private enum MESSAGE_TYPE { ENTER, EXIT, ENTER_DISTANCE, EXIT_DISTANCE };
 
     private final String pid = UUID.randomUUID().toString();
 
@@ -85,34 +83,23 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     public void onCreate() {
         super.onCreate();
 
+        // this avoid multiple instance bug
         pidPersistence = new PidPersistence(this);
         pidPersistence.savePid(pid);
 
-        if (mqttBroadcaster == null) {
-            mqttBroadcaster = new MqttBroadcaster(this);
-        }
-        if (webhookBroadcaster == null) {
-            webhookBroadcaster = new WebhookBroadcaster(this);
-        }
+        defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        beaconManager = setUpBeaconManager();
-//        beaconManager.setDebug(true);
+        minimumDistance = Long.parseLong(defaultSharedPreferences.getString(BEACON_MINIMUM_DISTANCE_KEY, "5"));
 
-        notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
-        notificationChannel.setDescription(getString(R.string.notification_channel_description));
-        notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
-        notificationChannel.enableVibration(true);
-        notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.createNotificationChannel(notificationChannel);
-
+        setUpBeaconManager();
         backgroundPowerSaver = new BackgroundPowerSaver(this);
 
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        setUpSettingsChangedListener(defaultSharedPreferences);
-        setUpScanningSettings(defaultSharedPreferences);
-        setUpRangeNotifier();
+        setUpBroadcaster();
+        setUpNotification();
 
+        setUpSettingsChangedListener();
+
+        setUpRangeNotifier();
         setUpMonitoring();
     }
 
@@ -120,9 +107,28 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         setUpMonitoring();
     }
 
+    private void setUpBroadcaster() {
+        if (mqttBroadcaster == null) {
+            mqttBroadcaster = new MqttBroadcaster(this);
+        }
+        if (webhookBroadcaster == null) {
+            webhookBroadcaster = new WebhookBroadcaster(this);
+        }
+    }
+
+    private void setUpNotification() {
+        notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setDescription(getString(R.string.notification_channel_description));
+        notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+        notificationChannel.enableVibration(true);
+        notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(notificationChannel);
+    }
+
     @NonNull
-    private BeaconManager setUpBeaconManager() {
-        final BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
+    private void setUpBeaconManager() {
+        beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=feaa,m:2-2=00,p:3-3:-41,i:4-13,i:14-19"));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("x,s:0-1=feaa,m:2-2=20,d:3-3,d:4-5,d:6-7,d:8-11,d:12-15"));
@@ -130,7 +136,12 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
-        return beaconManager;
+
+        Long beaconPeriodBetweenScans = Long.parseLong(defaultSharedPreferences.getString(BEACON_PERIOD_BETWEEN_SCANS_KEY, Long.valueOf(DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD).toString()));
+        beaconManager.setBackgroundBetweenScanPeriod(beaconPeriodBetweenScans);
+
+        Long beaconScanPeriod = Long.parseLong(defaultSharedPreferences.getString(BEACON_SCAN_PERIOD_KEY, Long.valueOf(DEFAULT_BACKGROUND_SCAN_PERIOD).toString()));
+        beaconManager.setBackgroundScanPeriod(beaconScanPeriod);
     }
 
     private void setUpRangeNotifier() {
@@ -138,61 +149,22 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
             @Override
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 for (Beacon beacon: beacons) {
-                    if(region.getId1() != null) {
-                        boolean isAlreadyInDistance = beaconPersistence.isBeaconInDistance(beacon);
-                        String mac = region.getBluetoothAddress();
-                        String uuid = region.getId1().toString();
-                        String major = region.getId2().toString();
-                        String minor = region.getId3().toString();
-                        double distance = beacon.getDistance();
-                        SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        String minimumDistanceValue = preferenceManager.getString(BEACON_MINIMUM_DISTANCE_KEY, "5");
-                        Long minimumDistance = Long.parseLong(minimumDistanceValue);
+                    if(region.getId1() == null) {
+                        continue;
+                    }
+                    double distance = beacon.getDistance();
 
-                        if (!isAlreadyInDistance && distance <= minimumDistance.doubleValue()) {
-                            beaconPersistence.saveBeaconInDistance(beacon);
-
-                            String message = getString(R.string.beacon_enter_distance_notification_message, uuid, mac, major, minor, distance);
-
-                            mqttBroadcaster.publishEnterDistanceMessage(uuid, mac, major, minor, distance);
-
-                            Log.i(TAG, message);
-
-                            boolean showNotification = preferenceManager.getBoolean(BEACON_NOTIFICATIONS_ENTER_DISTANCE_KEY, false);
-                            if (showNotification) {
-                                showNotification(getString(R.string.beacon_enter_distance_notification_title), message);
-                            }
-
-                            boolean logEvent = preferenceManager.getBoolean(GENERAL_LOG_KEY, false);
-                            if (logEvent) {
-                                logPersistence.saveNewLog(message, "");
-                            }
-                        } else if (isAlreadyInDistance && distance > minimumDistance.doubleValue()) {
-                            beaconPersistence.deleteBeaconInDistance(beacon);
-
-                            String message = getString(R.string.beacon_exit_distance_notification_message, uuid, mac, major, minor, distance);
-
-                            mqttBroadcaster.publishExitDistanceMessage(uuid, mac, major, minor, distance);
-
-                            Log.i(TAG, message);
-
-                            boolean showNotification = preferenceManager.getBoolean(BEACON_NOTIFICATIONS_EXIT_DISTANCE_KEY, false);
-                            if (showNotification) {
-                                showNotification(getString(R.string.beacon_exit_distance_notification_title), message);
-                            }
-
-                            boolean logEvent = preferenceManager.getBoolean(GENERAL_LOG_KEY, false);
-                            if (logEvent) {
-                                logPersistence.saveNewLog(message, "");
-                            }
-                        }
+                    if (distance <= minimumDistance) {
+                        didEnterDistance(beacon);
+                    } else if (distance > minimumDistance) {
+                        didExitDistance(beacon);
                     }
                 }
             }
         });
     }
 
-    private void setUpSettingsChangedListener(SharedPreferences defaultSharedPreferences) {
+    private void setUpSettingsChangedListener() {
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -204,66 +176,74 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
                     beaconManager.setBackgroundScanPeriod(beaconScanPeriod);
                 } else if (GENERAL_ENABLE_MONITORING.equals(key)) {
                     setUpMonitoring();
+                } else if (BEACON_MINIMUM_DISTANCE_KEY.equals(key)) {
+                    minimumDistance = Long.parseLong(defaultSharedPreferences.getString(key, "5"));
                 }
             }
         };
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
-    private void setUpScanningSettings(SharedPreferences defaultSharedPreferences) {
-        Long beaconPeriodBetweenScans = Long.parseLong(defaultSharedPreferences.getString(BEACON_PERIOD_BETWEEN_SCANS_KEY, Long.valueOf(DEFAULT_BACKGROUND_BETWEEN_SCAN_PERIOD).toString()));
-        beaconManager.setBackgroundBetweenScanPeriod(beaconPeriodBetweenScans);
-
-        Long beaconScanPeriod = Long.parseLong(defaultSharedPreferences.getString(BEACON_SCAN_PERIOD_KEY, Long.valueOf(DEFAULT_BACKGROUND_SCAN_PERIOD).toString()));
-        beaconManager.setBackgroundScanPeriod(beaconScanPeriod);
-    }
-
-    private void startSearchForBeacons() {
-        List<BeaconResult> beacons = beaconPersistence.getBeacons();
-
-        List<Region> regions = new ArrayList<>(beacons.size());
-        for (BeaconResult beacon : beacons) {
-            String id = beacon.getUuid() + beacon.getMac() + beacon.getMajor() + beacon.getMinor();
-            try {
-                ArrayList<Identifier> identifiers = new ArrayList(3);
-                identifiers.add(Identifier.parse(beacon.getUuid()));
-                identifiers.add(Identifier.parse(beacon.getMajor()));
-                identifiers.add(Identifier.parse(beacon.getMinor()));
-                
-                Region region = new Region(id,
-                        identifiers,
-                        beacon.getMac());
-                regions.add(region);
-            } catch (IllegalArgumentException e) {
-                String informalName = beacon.getInformalName();
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(getString(R.string.not_able_to_start_monitoring_for_beacon_error_1));
-                if (informalName != null && !informalName.isEmpty()) {
-                    stringBuilder.append("name: \"").append(informalName).append("\" with ");
-                }
-                stringBuilder.append("uuid: \"").append(beacon.getUuid()).append("mac: \"").append(beacon.getMac()).append("\" major: \"").append(beacon.getMajor()).append("\" minor: \"").append(beacon.getMinor()).append("\"");
-
-                String errorMessage = stringBuilder.toString();
-                Log.e(TAG, errorMessage, e);
-
-                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-            }
-        }
-
-        Region region = new Region("backgroundRegion",
-                null, null, null);
-        regions.add(region);
-
-        regionBootstrap = new RegionBootstrap(this, regions);
-    }
-
     private void setUpMonitoring() {
-        boolean enableMonitoring = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(GENERAL_ENABLE_MONITORING, true);
+        boolean enableMonitoring = defaultSharedPreferences.getBoolean(GENERAL_ENABLE_MONITORING, true);
         if (!enableMonitoring && regionBootstrap != null) {
             regionBootstrap.disable();
             regionBootstrap = null;
         } else if (enableMonitoring && regionBootstrap == null) {
-            startSearchForBeacons();
+            List<BeaconResult> beacons = beaconPersistence.getBeacons();
+
+            List<Region> regions = new ArrayList<>(beacons.size());
+            for (BeaconResult beacon : beacons) {
+                String id = beacon.getUuid() + beacon.getMac() + beacon.getMajor() + beacon.getMinor();
+                try {
+                    ArrayList<Identifier> identifiers = new ArrayList(3);
+                    identifiers.add(Identifier.parse(beacon.getUuid()));
+                    identifiers.add(Identifier.parse(beacon.getMajor()));
+                    identifiers.add(Identifier.parse(beacon.getMinor()));
+
+                    Region region = new Region(id,
+                            identifiers,
+                            beacon.getMac());
+                    regions.add(region);
+                } catch (IllegalArgumentException e) {
+                    String informalName = beacon.getInformalName();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(getString(R.string.not_able_to_start_monitoring_for_beacon_error_1));
+                    if (informalName != null && !informalName.isEmpty()) {
+                        stringBuilder.append("name: \"").append(informalName).append("\" with ");
+                    }
+                    stringBuilder.append("uuid: \"").append(beacon.getUuid()).append("mac: \"").append(beacon.getMac()).append("\" major: \"").append(beacon.getMajor()).append("\" minor: \"").append(beacon.getMinor()).append("\"");
+
+                    String errorMessage = stringBuilder.toString();
+                    Log.e(TAG, errorMessage, e);
+
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            Region region = new Region("backgroundRegion",
+                    null, null, null);
+            regions.add(region);
+
+            regionBootstrap = new RegionBootstrap(this, regions);
+        }
+    }
+
+    private  void didEnterDistance(Beacon beacon) {
+        boolean isAlreadyInDistance = beaconPersistence.isBeaconInDistance(beacon);
+
+        if (!isAlreadyInDistance) {
+            beaconPersistence.saveBeaconInDistance(beacon);
+            dispatch(beacon, MESSAGE_TYPE.ENTER_DISTANCE);
+        }
+    }
+
+    private void didExitDistance(Beacon beacon) {
+        boolean isAlreadyInDistance = beaconPersistence.isBeaconInDistance(beacon);
+
+        if (isAlreadyInDistance) {
+            beaconPersistence.deleteBeaconInDistance(beacon);
+            dispatch(beacon, MESSAGE_TYPE.EXIT_DISTANCE);
         }
     }
 
@@ -275,21 +255,18 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         String major = region.getId2().toString();
         String minor = region.getId3().toString();
 
-        String message = getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor);
-
-        Log.i(TAG, message);
-
         BeaconResult beacon = beaconPersistence.getBeacon(uuid, mac, major, minor);
+
         if (beacon != null) {
             boolean isAlreadyInRange = beaconPersistence.isBeaconInRange(beacon);
 
             if(!isAlreadyInRange) {
+                Log.i(TAG, getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor));
                 beaconPersistence.saveBeaconInRange(beacon);
 
-                notifyAllChannels(region, MESSAGE_TYPE.ENTER);
+                dispatch(region, MESSAGE_TYPE.ENTER);
             } else {
-                message = message + " " + getString(R.string.beacon_spotted_and_ignored_notification_message);
-                Log.i(TAG, message);
+                Log.i(TAG, getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor) + " " + getString(R.string.beacon_spotted_and_ignored_notification_message));
             }
 
         }
@@ -303,106 +280,150 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
         String major = region.getId2().toString();
         String minor = region.getId3().toString();
 
-        String message = getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor);
-
-        Log.i(TAG, message);
-
         BeaconResult beacon = beaconPersistence.getBeacon(uuid, mac, major, minor);
+
         if (beacon != null) {
             boolean isAlreadyInRange = beaconPersistence.isBeaconInRange(beacon);
 
             if(isAlreadyInRange) {
+                Log.i(TAG, getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor));
                 beaconPersistence.deleteBeaconInRange(beacon);
 
-                notifyAllChannels(region, MESSAGE_TYPE.EXIT);
+                dispatch(region, MESSAGE_TYPE.EXIT);
             } else {
-                message = message + " " + getString(R.string.beacon_exit_and_ignored_notification_message);
-                Log.i(TAG, message);
+                Log.i(TAG, getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor) + " " + getString(R.string.beacon_exit_and_ignored_notification_message));
             }
         }
     }
 
+    private void toggleDistanceMonitoring(Region region, boolean state) {
+        boolean monitorDistance = defaultSharedPreferences.getBoolean(BEACON_MONITOR_DISTANCE_KEY, false);
+        if (monitorDistance == true && state == true) {
+            try {
+                // start ranging for beacons.  This will provide an update once per second with the estimated
+                // distance to the beacon in the didRAngeBeaconsInRegion method.
+                beaconManager.startRangingBeaconsInRegion(region);
+            } catch (RemoteException e) {
+            }
+        }
 
-    private void notifyAllChannels(Region region, MESSAGE_TYPE messageType) {
+        if (state == false) {
+            try {
+                beaconManager.stopRangingBeaconsInRegion(region);
+            } catch (RemoteException e) {
+            }
+        }
+    }
 
-        if(pidPersistence.isSamePid(pid) == false) {
+    private void exitOnWrongPid() {
+        if (pidPersistence.isSamePid(pid) == false) {
             regionBootstrap.disable();
             regionBootstrap = null;
             System.exit(0);
         }
+    }
+
+    private void dispatch(Region region, MESSAGE_TYPE messageType) {
+        exitOnWrongPid();
 
         String mac = region.getBluetoothAddress();
         String uuid = region.getId1().toString();
         String major = region.getId2().toString();
         String minor = region.getId3().toString();
+
         BeaconResult beacon = beaconPersistence.getBeacon(uuid, mac, major, minor);
 
         if (messageType == MESSAGE_TYPE.ENTER) {
-
-            String message = getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor);
-            if (beacon.getInformalName() != null) {
-                message = "[" + beacon.getInformalName() + "] " + message;
-            }
-            Log.i(TAG, message);
-
-            mqttBroadcaster.publishEnterMessage(uuid, mac, major, minor);
-
-            webhookBroadcaster.publishEnterMessage(uuid, mac, major, minor);
-
-            boolean showNotification = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_NOTIFICATIONS_ENTER_KEY, false);
-            if (showNotification) {
-                showNotification(getString(R.string.beacon_spotted_notification_title), message);
-            }
-
-            boolean logEvent = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(GENERAL_LOG_KEY, false);
-            if (logEvent) {
-                logPersistence.saveNewLog(message, "");
-            }
-
-            boolean monitorDistance = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_MONITOR_DISTANCE_KEY, false);
-            if(monitorDistance) {
-                try {
-                    // start ranging for beacons.  This will provide an update once per second with the estimated
-                    // distance to the beacon in the didRAngeBeaconsInRegion method.
-                    beaconManager.startRangingBeaconsInRegion(region);
-                } catch (RemoteException e) {   }
-            }
-
-            if (beaconInRangeListener != null) {
-                beaconInRangeListener.beaconsInRangeChanged();
-            }
+            broadcastEnter(mac, uuid, major, minor, beacon);
+            toggleDistanceMonitoring(region, true);
         }
         if (messageType == MESSAGE_TYPE.EXIT) {
-            mqttBroadcaster.publishExitMessage(uuid, mac, major, minor);
+            broadcastExit(mac, uuid, major, minor, beacon);
+            toggleDistanceMonitoring(region, false);
+        }
+    }
 
-            webhookBroadcaster.publishExitMessage(uuid, mac, major, minor);
+    private void dispatch(Beacon beacon, MESSAGE_TYPE messageType) {
+        exitOnWrongPid();
 
-            String message = getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor);
-            if (beacon.getInformalName() != null) {
-                message = "[" + beacon.getInformalName() + "] " + message;
-            }
-            Log.i(TAG, message);
+        String mac = beacon.getBluetoothAddress();
+        String uuid = beacon.getId1().toString();
+        String major = beacon.getId2().toString();
+        String minor = beacon.getId3().toString();
+        double distance = beacon.getDistance();
 
-            boolean showNotification = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(BEACON_NOTIFICATIONS_EXIT_KEY, false);
-            if (showNotification) {
-                showNotification(getString(R.string.beacon_exit_notification_title), message);
-            }
-
-            boolean logEvent = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(GENERAL_LOG_KEY, false);
-            if (logEvent) {
-                logPersistence.saveNewLog(message, "");
-            }
-
-            try {
-                beaconManager.stopRangingBeaconsInRegion(region);
-            } catch (RemoteException e) {   }
-
-
-            if (beaconInRangeListener != null) {
-                beaconInRangeListener.beaconsInRangeChanged();
-            }
+        if (messageType == MESSAGE_TYPE.ENTER_DISTANCE) {
+            broadcastEnterDistance(mac, uuid, major, minor, distance);
+        }
+        if (messageType == MESSAGE_TYPE.EXIT_DISTANCE) {
+            broadcastExitDistance(mac, uuid, major, minor, distance);
         }
 
+    }
+
+    private void broadcastExitDistance(String mac, String uuid, String major, String minor, double distance) {
+        String message = getString(R.string.beacon_exit_distance_notification_message, uuid, mac, major, minor, distance);
+        Log.i(TAG, message);
+
+        mqttBroadcaster.publishExitDistanceMessage(uuid, mac, major, minor, distance);
+        webhookBroadcaster.publishExitDistanceMessage(uuid, mac, major, minor, distance);
+
+        showNotification(getString(R.string.beacon_exit_distance_notification_title), message);
+
+        logPersistence.saveNewLog(message, "");
+    }
+
+    private void broadcastEnterDistance(String mac, String uuid, String major, String minor, double distance) {
+        String message = getString(R.string.beacon_enter_distance_notification_message, uuid, mac, major, minor, distance);
+        Log.i(TAG, message);
+
+        mqttBroadcaster.publishEnterDistanceMessage(uuid, mac, major, minor, distance);
+        webhookBroadcaster.publishEnterDistanceMessage(uuid, mac, major, minor, distance);
+
+        showNotification(getString(R.string.beacon_enter_distance_notification_title), message);
+
+        logPersistence.saveNewLog(message, "");
+    }
+
+    private void broadcastExit(String mac, String uuid, String major, String minor, BeaconResult beacon) {
+        String message = getString(R.string.beacon_exit_notification_message, uuid, mac, major, minor);
+        if (beacon.getInformalName() != null) {
+            message = "[" + beacon.getInformalName() + "] " + message;
+        }
+        Log.i(TAG, message);
+
+        mqttBroadcaster.publishExitMessage(uuid, mac, major, minor);
+        webhookBroadcaster.publishExitMessage(uuid, mac, major, minor);
+
+        showNotification(getString(R.string.beacon_exit_notification_title), message);
+
+        logPersistence.saveNewLog(message, "");
+
+        beaconInRangeListenerUpdate();
+    }
+
+    private void broadcastEnter(String mac, String uuid, String major, String minor, BeaconResult beacon) {
+        String message = getString(R.string.beacon_spotted_notification_message, uuid, mac, major, minor);
+        if (beacon.getInformalName() != null) {
+            message = "[" + beacon.getInformalName() + "] " + message;
+        }
+        Log.i(TAG, message);
+
+        mqttBroadcaster.publishEnterMessage(uuid, mac, major, minor);
+        webhookBroadcaster.publishEnterMessage(uuid, mac, major, minor);
+
+        showNotification(getString(R.string.beacon_spotted_notification_title), message);
+
+        logPersistence.saveNewLog(message, "");
+
+        beaconInRangeListenerUpdate();
+    }
+
+
+    private void beaconInRangeListenerUpdate() {
+        if (beaconInRangeListener != null) {
+            beaconInRangeListener.beaconsInRangeChanged();
+        }
     }
 
     @Override
@@ -411,7 +432,10 @@ public class BeaconApplication extends Application implements BootstrapNotifier 
     }
 
     private void showNotification(String title, String message) {
-            Intent notifyIntent = new Intent(this, MainActivity.class);
+        boolean showNotification = defaultSharedPreferences.getBoolean(BEACON_NOTIFICATIONS_ENTER_KEY, false);
+        if(!showNotification) { return; }
+
+        Intent notifyIntent = new Intent(this, MainActivity.class);
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivities(this, 0,
                 new Intent[] { notifyIntent }, PendingIntent.FLAG_UPDATE_CURRENT);

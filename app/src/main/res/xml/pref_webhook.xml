@@ -31,7 +31,7 @@
     <EditTextPreference
         android:inputType="text"
         android:key="webhook_enter_payload"
-        android:defaultValue="{}"
+        android:defaultValue="@string/default_webhook_enter_payload"
         android:maxLines="3"
         android:selectAllOnFocus="true"
         android:singleLine="false"
@@ -40,7 +40,7 @@
     <EditTextPreference
         android:inputType="text"
         android:key="webhook_exit_payload"
-        android:defaultValue="{}"
+        android:defaultValue="@string/default_webhook_exit_payload"
         android:maxLines="3"
         android:selectAllOnFocus="true"
         android:singleLine="false"
@@ -49,7 +49,7 @@
     <EditTextPreference
         android:inputType="text"
         android:key="webhook_enter_distance_payload"
-        android:defaultValue="{}"
+        android:defaultValue="@string/default_webhook_enter_distance_payload"
         android:maxLines="3"
         android:selectAllOnFocus="true"
         android:singleLine="false"
@@ -58,7 +58,7 @@
     <EditTextPreference
         android:inputType="text"
         android:key="webhook_exit_distance_payload"
-        android:defaultValue="{}"
+        android:defaultValue="@string/default_webhook_exit_distance_payload"
         android:maxLines="3"
         android:selectAllOnFocus="true"
         android:singleLine="false"

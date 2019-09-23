@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_mqtt_enter_distance_topic">beacon/enter/distance</string>
+    <string name="default_mqtt_exit_distance_topic">beacon/exit/distance</string>
+    <string name="default_mqtt_enter_topic">beacon/enter</string>
+    <string name="default_mqtt_exit_topic">beacon/exit</string>
+
+    <string name="default_webhook_enter_distance_payload">{"enter-distance": true}</string>
+    <string name="default_webhook_exit_distance_payload">{"exit-distance": true}</string>
+    <string name="default_webhook_enter_payload">{"enter": true}</string>
+    <string name="default_webhook_exit_payload">{"exit": true}</string>
+</resources>

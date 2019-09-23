@@ -44,10 +44,10 @@ public class MqttBroadcaster {
 
     private static final String TAG = MqttBroadcaster.class.getName();
     private static final String CLIENT_ID = "AndroidMqttBeacon";
-    private static final String DEFAULT_ENTER_TOPIC = "beacon/enter";
-    private static final String DEFAULT_EXIT_TOPIC = "beacon/exit";
-    private static final String DEFAULT_ENTER_DISTANCE_TOPIC = "beacon/enter/distance";
-    private static final String DEFAULT_EXIT_DISTANCE_TOPIC = "beacon/exit/distance";
+    private final String DEFAULT_ENTER_TOPIC;
+    private final String DEFAULT_EXIT_TOPIC;
+    private final String DEFAULT_ENTER_DISTANCE_TOPIC;
+    private final String DEFAULT_EXIT_DISTANCE_TOPIC;
     private final Context context;
     private final JSONPayload jsonPayload;
 
@@ -57,6 +57,12 @@ public class MqttBroadcaster {
 
     public MqttBroadcaster(final Context context) {
         this.context = context;
+
+        DEFAULT_ENTER_DISTANCE_TOPIC = context.getString(R.string.default_mqtt_enter_distance_topic);
+        DEFAULT_EXIT_DISTANCE_TOPIC = context.getString(R.string.default_mqtt_exit_distance_topic);
+        DEFAULT_ENTER_TOPIC = context.getString(R.string.default_mqtt_enter_topic);
+        DEFAULT_EXIT_TOPIC = context.getString(R.string.default_mqtt_exit_topic);
+
         logPersistence = new LogPersistence(context);
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         jsonPayload = new JSONPayload(context);

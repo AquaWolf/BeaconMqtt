@@ -199,11 +199,15 @@ public class BeaconPersistence {
     }
 
     public boolean isBeaconInDistance(Beacon beacon) {
+        return isBeaconInDistance(beacon.getId1().toString(), beacon.getBluetoothAddress(), beacon.getId2().toString(), beacon.getId3().toString());
+    }
+
+    public boolean isBeaconInDistance(BeaconResult beacon) {
+        return isBeaconInDistance(beacon.getUuid(), beacon.getMac(), beacon.getMajor(), beacon.getMinor());
+    }
+
+    public boolean isBeaconInDistance(String uuid, String mac, String major, String minor) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String uuid = beacon.getId1().toString();
-        String mac = beacon.getBluetoothAddress();
-        String major = beacon.getId2().toString();
-        String minor = beacon.getId3().toString();
 
         try {
             String[] columns = {

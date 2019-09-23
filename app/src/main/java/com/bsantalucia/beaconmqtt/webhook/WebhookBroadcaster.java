@@ -41,6 +41,12 @@ import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.WEBHOOK_EXIT_
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.WEBHOOK_METHOD_KEY;
 import static com.bsantalucia.beaconmqtt.settings.SettingsActivity.WEBHOOK_URL_KEY;
 
+
+enum State {
+    DONE,
+    ERROR,
+}
+
 class Task extends AsyncTask<JSONObject, Void, Void> {
     private final WeakReference<Context> context;
     private final SharedPreferences defaultSharedPreferences;
@@ -49,6 +55,8 @@ class Task extends AsyncTask<JSONObject, Void, Void> {
 
     private static final String DEFAULT_CONTENT_TYPE = "application/json";
     private static final String DEFAULT_METHOD = "POST";
+
+    private State state = null;
 
     public Task(final Context context) {
         this.context = new WeakReference<>(context);
@@ -70,52 +78,38 @@ class Task extends AsyncTask<JSONObject, Void, Void> {
             client.setRequestMethod(defaultSharedPreferences.getString(WEBHOOK_METHOD_KEY, DEFAULT_METHOD));
             client.setRequestProperty("Content-Type", defaultSharedPreferences.getString(WEBHOOK_CONTENT_TYPE_KEY, DEFAULT_CONTENT_TYPE) + "; utf-8");
             client.setDoOutput(true);
-
             client.setDoInput(true);
 
             OutputStream outputStream = client.getOutputStream();
             byte[] input = payload.toString().getBytes("utf-8");
             outputStream.write(input, 0, input.length);
 
-//            DataOutputStream wr = null;
-//            try {
-//                wr = new DataOutputStream(client.getOutputStream());
-//                wr.writeBytes(payload.toString());
-//                wr.flush();
-//                wr.close();
-//            } catch(IOException exception) {
-//                throw exception;
-//            } finally {
-//                try {
-//                    if( wr != null ) {
-//                        wr.close();
-//                    }
-//                } catch(IOException ex) {
-//
-//                }
-//            }
-
+            // TODO: Why is it not sending the request if I remove this?
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     client.getInputStream()));
             String inputLine;
-            while ((inputLine = in.readLine()) != null)
+            while ((inputLine = in.readLine()) != null) {
                 System.out.println(inputLine);
+            }
             in.close();
 
-//            Toast.makeText(context.get(), R.string.webhook_done, Toast.LENGTH_LONG).show();
+            state = State.DONE;
         }
         catch (MalformedURLException e){
             e.printStackTrace();
             logPersistence.saveNewLog(context.get().getString(R.string.webhook_invalid_url), "");
-//            Toast.makeText(context.get(), R.string.webhook_invalid_url, Toast.LENGTH_LONG).show();
             Log.i(TAG, context.get().getString(R.string.webhook_invalid_url));
+            state = State.ERROR;
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            state = State.ERROR;
         } catch (ProtocolException e) {
             e.printStackTrace();
+            state = State.ERROR;
         } catch (IOException e) {
             e.printStackTrace();
+            state = State.ERROR;
         } finally {
             if(client != null) {
                 client.disconnect();
@@ -132,14 +126,23 @@ class Task extends AsyncTask<JSONObject, Void, Void> {
 
         return null;
     }
+
+    protected void onPostExecute(Void x) {
+        if (state == State.DONE) {
+            Toast.makeText(context.get(), R.string.webhook_done, Toast.LENGTH_LONG).show();
+        }
+        if (state == State.ERROR) {
+            Toast.makeText(context.get(), R.string.webhook_invalid_url, Toast.LENGTH_LONG).show();
+        }
+    }
 };
 
 public class WebhookBroadcaster {
     private static final String TAG = WebhookBroadcaster.class.getName();
-    private static final String DEFAULT_ENTER_PAYLOAD = "{}";
-    private static final String DEFAULT_EXIT_PAYLOAD = "{}";
-    private static final String DEFAULT_ENTER_DISTANCE_PAYLOAD = "{}";
-    private static final String DEFAULT_EXIT_DISTANCE_PAYLOAD = "{}";
+    private final String DEFAULT_ENTER_PAYLOAD;
+    private final String DEFAULT_EXIT_PAYLOAD;
+    private final String DEFAULT_ENTER_DISTANCE_PAYLOAD;
+    private final String DEFAULT_EXIT_DISTANCE_PAYLOAD;
 
     private final Context context;
 
@@ -149,6 +152,12 @@ public class WebhookBroadcaster {
 
     public WebhookBroadcaster(final Context context) {
         this.context = context;
+
+        DEFAULT_ENTER_PAYLOAD = context.getString(R.string.default_webhook_enter_payload);
+        DEFAULT_EXIT_PAYLOAD = context.getString(R.string.default_webhook_exit_payload);
+        DEFAULT_ENTER_DISTANCE_PAYLOAD = context.getString(R.string.default_webhook_enter_distance_payload);
+        DEFAULT_EXIT_DISTANCE_PAYLOAD = context.getString(R.string.default_webhook_exit_distance_payload);
+
         logPersistence = new LogPersistence(context);
         jsonPayload = new JSONPayload(context);
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -200,22 +209,5 @@ public class WebhookBroadcaster {
             }
         }
         return payload;
-    }
-
-    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
-        StringBuilder feedback = new StringBuilder();
-        boolean first = true;
-        for(Map.Entry<String, String> entry : params.entrySet()){
-            if (first)
-                first = false;
-            else
-                feedback.append("&");
-
-            feedback.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            feedback.append("=");
-            feedback.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-        }
-
-        return feedback.toString();
     }
 }
