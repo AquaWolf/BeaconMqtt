@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Beacon MQTT</string>
+    <string name="app_name">Beacon Automation</string>
     <string name="main_menu_action_settings">Settings</string>
     <string name="main_menu_action_log">Log</string>
     <string name="title_activity_settings">Settings</string>
@@ -72,7 +72,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="logging_turned_off_message">Logging is turned off, go to settings to turn it on.</string>
-    <string name="notification_channel_name">beaconMqtt Notifications</string>
+    <string name="notification_channel_name">Beacon Automation Notifications</string>
     <string name="notification_channel_description">Notifications raised when entering/leaving a beacon</string>
     <string name="auto_launching">Auto launching Activity</string>
 
